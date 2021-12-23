@@ -2,8 +2,6 @@ import pygame, sys
 from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 import random
 
-file = 'Resources/OST.mp3'
-pygame.mixer.pre_init(44100, -16, 2, 2048)
 
 pygame.init()
 window = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
@@ -13,11 +11,24 @@ winx, winy = displ.current_w, displ.current_h
 pygame.display.set_caption('my game')
 frame_delay = 25 # регулирует скорость игры
 
+# for music
+music_volume = 0.0 # 0.2 is default
+file = 'Resources/OST.mp3'
+pygame.mixer.pre_init(44100, -16, 2, 2048)
+pygame.mixer.init()
+pygame.mixer.music.load(file)
+pygame.mixer.music.play(loops = -1)
+pygame.mixer.music.set_volume(music_volume)
+pygame.event.wait()
+
 # описание параметров игрока
 x, y, radius, speed, jump_step, in_jump, in_fall, facing, hp, max_hp, in_attack, radius_attack, steps_attack, fallspeed = int(winx*0.08), int(winy*0.99)-int(winy*0.02), int(winy*0.02), int(winx*0.00875), 5, False, True, 1, 15, 15, False, int(winy*0.03), -3, winy*0.016666667
 jump_speed = [0, int(winy * 0.001666667), int(winy * 0.006666667), int(winy * 0.015), int(winy * 0.026666666), int(winy * 0.041666666)]       #при смене радиуса тут^тож исправить^
 y_attack = y - int(radius*0.4)
 x_attack = x + facing * int(radius*1.2)
+
+
+
 
 
   # ДЛЯ СПРАЙТОВ
@@ -130,7 +141,62 @@ PLAYER_12 = pygame.image.load('Resources/PLAYER-12.png')
 PLAYER_12 = pygame.transform.scale(PLAYER_12, (walk_skale, walk_skale))
 player_sprite_list = [PLAYER1,PLAYER2,PLAYER3,PLAYER4,PLAYER5,PLAYER6,PLAYER7,PLAYER8,PLAYER9,PLAYER10,PLAYER11,PLAYER12,PLAYER_1,PLAYER_2,PLAYER_3,PLAYER_4,PLAYER_5,PLAYER_6,PLAYER_7,PLAYER_8,PLAYER_9,PLAYER_10,PLAYER_11,PLAYER_12]
 
+###################################################
+def reset_game(self):
+    x, y, in_jump, in_fall, facing, hp, in_attack, steps_attack = int(winx*0.08), int(winy*0.99)-int(winy*0.02), False, True, 1, 15, False, -3
+    player_picture_number = 1
+    background_count = 1
+    enemies = []
+    heal_packs = []
+    increase, decrease = False, False
+    cool_down_count, D_press_Count, enemy_cool_down_count = 0, 0, 0
+    D_not_pressed_timer = 100
+    win = False
+    jump_cool_down = 0
+    platforms = [(0, int(winy * 0.99), winx), (int(winx * 0.18), int(winy * 0.94), int(winx * 0.38)),
+                 (int(winx * 0.75), int(winy * 0.94), int(winx * 0.88)),
+                 (int(winx * 0.33), int(winy * 0.89), int(winx * 0.40)),
+                 (int(winx * 0.68), int(winy * 0.89), int(winx * 0.88)),
+                 (int(winx * 0.35), int(winy * 0.84), int(winx * 0.6)),
+                 (int(winx * 0.07), int(winy * 0.84), int(winx * 0.16)),
+                 (int(winx * 0.65), int(winy * 0.84), int(winx * 0.93)),
+                 (int(winx * 0.2), int(winy * 0.79), int(winx * 0.7)), (0, int(winy * 0.74), int(winx * 0.2)),
+                 (int(winx * 0.7), int(winy * 0.74), winx), (int(winx * 0.1), int(winy * 0.69), int(winx * 0.5)),
+                 (int(winx * 0.5), int(winy * 0.64), int(winx * 0.8)), (0, int(winy * 0.64), int(winx * 0.1)),
+                 (int(winx * 0.9), int(winy * 0.64), int(winx * 1)),
+                 (int(winx * 0.75), int(winy * 0.7), int(winx * 0.95)),
+                 (int(winx * 0.78), int(winy * 0.59), int(winx * 1)),
+                 (int(winx * 0.05), int(winy * 0.57), int(winx * 0.55)),
+                 (int(winx * 0.45), int(winy * 0.5), int(winx * 0.78)),
+                 (int(winx * 0.2), int(winy * 0.44), int(winx * 0.55)), (0, int(winy * 0.44), int(winx * 0.1)),
+                 (int(winx * 0.1), int(winy * 0.36), int(winx * 0.2)),
+                 (int(winx * 0.1), int(winy * 0.2), int(winx * 0.2)),
+                 (int(winx * 0.8), int(winy * 0.36), int(winx * 0.9)),
+                 (int(winx * 0.8), int(winy * 0.2), int(winx * 0.9)),
+                 (int(winx * 0.2), int(winy * 0.28), int(winx * 0.8)),
+                 (int(winx * 0.65), int(winy * 0.45), int(winx * 0.85))]
+    run = True
+    radiuse = int(winy * 0.08)
+    enemies.append(Boss(int(winx * 0.2) + radiuse / 2, int(winy * 0.39) - radiuse, int(winx * 0.8) - radiuse / 2,
+                        int((int(winx * 0.2) + int(winx * 0.8)) / 2), int(winy * 0.28) - radiuse, radiuse,
+                        int(winx * 0.008), 90))
+    for elem in random.sample(platforms, random.randint(15, 20)):  # генератор ВРАГОВ
+        if elem != (0, int(winy * 0.99), winx) and elem != (int(winx * 0.2), int(winy * 0.28), int(winx * 0.8)):
+            radiuse = random.randint(int(winy * 0.03), int(winy * 0.05))
+            enemies.append(
+                Enemy(elem[0] + radiuse / 2, elem[1] - radiuse, elem[2] - radiuse / 2, int((elem[0] + elem[2]) / 2),
+                      elem[1] - radiuse, radiuse, random.randint(int(winx * 0.003), int(winx * 0.005)),
+                      random.randint(10, 20)))
+        else:
+            continue
 
+    for elem in random.sample(platforms, random.randint(3, 4)):  # генератор ХИЛОК
+        radiuse = random.randint(int(winy * 0.01), int(winy * 0.012))
+        heal_packs.append(Heal_pack(random.randint(elem[0], elem[2]), elem[1] - radiuse, radiuse, radiuse * 1.4,
+                                    random.randint(2, 10), random.randint(10, 20)))
+    pygame.display.update()
+
+##################################################
 
 death_sprite = pygame.image.load('Resources/DEATH.png')
 death_sprite = pygame.transform.scale(death_sprite, (winx, winy))
@@ -140,12 +206,12 @@ win_sprite = pygame.transform.scale(win_sprite, (winx, winy))
 enemies = []
 heal_packs = []
 
-increase, decrease = False, False  # для пульсации хилок
+increase, decrease = False, False  # для пульсации лечилок
 
 cool_down_count, D_press_Count, enemy_cool_down_count = 0, 0, 0  # для куллдауна атаки
 D_not_pressed_timer = 100  # чтобы спрыг вниз нормально работал
 win = False         # флаг убийства босса
-jump_cool_down = 0  # вроде понятно
+jump_cool_down = 0
 platforms = [(0,int(winy*0.99),winx), (int(winx*0.18), int(winy*0.94), int(winx*0.38)), (int(winx*0.75), int(winy*0.94), int(winx*0.88)), (int(winx*0.33), int(winy*0.89), int(winx*0.40)), (int(winx*0.68), int(winy*0.89), int(winx*0.88)), (int(winx*0.35), int(winy*0.84), int(winx*0.6)), (int(winx*0.07), int(winy*0.84), int(winx*0.16)), (int(winx*0.65), int(winy*0.84), int(winx*0.93)), (int(winx*0.2), int(winy*0.79), int(winx*0.7)), (0, int(winy*0.74), int(winx*0.2)), (int(winx*0.7), int(winy*0.74), winx), (int(winx*0.1), int(winy*0.69), int(winx*0.5)), (int(winx*0.5), int(winy*0.64), int(winx*0.8)), (0, int(winy*0.64), int(winx*0.1)), (int(winx*0.9), int(winy*0.64), int(winx*1)),  (int(winx*0.75), int(winy*0.7), int(winx*0.95)), (int(winx*0.78), int(winy*0.59), int(winx*1)), (int(winx*0.05), int(winy*0.57), int(winx*0.55)), (int(winx*0.45), int(winy*0.5), int(winx*0.78)), (int(winx*0.2), int(winy*0.44), int(winx*0.55)), (0, int(winy*0.44), int(winx*0.1)), (int(winx*0.1), int(winy*0.36), int(winx*0.2)), (int(winx*0.1), int(winy*0.2), int(winx*0.2)), (int(winx*0.8), int(winy*0.36), int(winx*0.9)), (int(winx*0.8), int(winy*0.2), int(winx*0.9)), (int(winx*0.2), int(winy*0.28), int(winx*0.8)), (int(winx*0.65), int(winy*0.45), int(winx*0.85))]
 run = True
 
@@ -166,12 +232,6 @@ for elem in random.sample(platforms, random.randint(3, 4)):   # генерато
 
 pygame.display.update()
 keys = pygame.key.get_pressed()
-
-pygame.mixer.init()
-pygame.mixer.music.load(file)
-pygame.mixer.music.play(loops = -1)
-pygame.mixer.music.set_volume(0.0) #0.2
-pygame.event.wait()
 
 
 while run: # цикл игры
