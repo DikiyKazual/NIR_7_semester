@@ -16,7 +16,8 @@ pygame.display.set_caption('my game')
 # описание параметров игрока
 x, y, radius, speed, jump_step, in_jump, in_fall, facing, hp, max_hp, in_attack, radius_attack, steps_attack, fallspeed = int(winx*0.08), int(winy*0.99)-int(winy*0.02), int(winy*0.02), int(winx*0.00875), 5, False, True, 1, 15, 15, False, int(winy*0.03), -3, winy*0.016666667
 jump_speed = [0, int(winy * 0.001666667), int(winy * 0.006666667), int(winy * 0.015), int(winy * 0.026666666), int(winy * 0.041666666)]       #при смене радиуса тут^тож исправить^
-
+y_attack = y - int(radius*0.4)
+x_attack = x + facing * int(radius*1.2)
 
 
   # ДЛЯ СПРАЙТОВ
@@ -341,7 +342,7 @@ while run: # цикл игры
         window.blit(enemy.get_pic(), (enemy.x-enemy.radius, enemy.y-int(enemy.radius*0.948)))
         pygame.draw.line(window, (0,128,0), (enemy.x - int(winx*0.00625), enemy.y - enemy.radius - int(winx*0.004)), (enemy.x + int(winx*0.00625) - (int(20 * ((enemy.max_hp - enemy.hp) / enemy.max_hp)))/1600*winx, enemy.y - enemy.radius - int(winx*0.004)), 2)
     if hp != 0:                             # рисуем полоску жизни игрока
-        pygame.draw.rect(window, (255,20,20), (int(winx*0.02), int(winy*0.024), (hp*25 / 1080) * winx, int(winy*0.02)))
+        pygame.draw.rect(window, (255,20,20), (int(winx*0.02), int(winy*0.024), int((hp*25 / 1080) * winx), int(winy*0.02)))
 
     if facing == 1 and player_picture_number == 0 and steps_attack == -3:   # рисуем спрайт игрока
         window.blit(PLAYER1, (x-1.85*radius, y-2.1*radius))
@@ -359,7 +360,6 @@ while run: # цикл игры
         else:
             window.blit(player_in_attack_list[steps_attack + 8], (x-attack_left_x_shift, y-attack_left_y_shift))
     pygame.display.update()
-
 
 pygame.quit()
 sys.exit()
