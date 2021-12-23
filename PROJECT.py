@@ -345,7 +345,7 @@ while run: # цикл игры
         pygame.draw.rect(window, (255,20,20), (int(winx*0.02), int(winy*0.024), (hp*25 / 1080) * winx, int(winy*0.02)))
 
     if facing == 1 and player_picture_number == 0 and steps_attack == -3:   # рисуем спрайт игрока
-        window.blit(PLAYER1, (x-1.8*radius, y-2.1*radius))
+        window.blit(PLAYER1, (x-1.85*radius, y-2.1*radius))
     if facing == -1 and player_picture_number == 0 and steps_attack == -3:
         window.blit(PLAYER_1, (x-1.8*radius, y-2.1*radius))
 
