@@ -9,9 +9,9 @@ pygame.init()
 window = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 
 displ = pygame.display.Info()
-#256, 144 1024, 600 1280, 720 1366, 768 1440, 810 1600, 900 1920, 1080 нодвысот6
 winx, winy = displ.current_w, displ.current_h
 pygame.display.set_caption('my game')
+frame_delay = 25 # регулирует скорость игры
 
 # описание параметров игрока
 x, y, radius, speed, jump_step, in_jump, in_fall, facing, hp, max_hp, in_attack, radius_attack, steps_attack, fallspeed = int(winx*0.08), int(winy*0.99)-int(winy*0.02), int(winy*0.02), int(winx*0.00875), 5, False, True, 1, 15, 15, False, int(winy*0.03), -3, winy*0.016666667
@@ -178,7 +178,7 @@ while run: # цикл игры
     for event in pygame.event.get():
         if event.type == pygame.QUIT: run = False
 
-    pygame.time.delay(25) # задержка между кадрами (ПОСТАВИЛ 15 ШОБ НЕ ЛАГАЛО, было 35 если что) ДЕЛЕЙЙЙЙЙЙЙ
+    pygame.time.delay(frame_delay) # задержка между кадрами
 
     if background_count < 8:
         background_count += 1
@@ -265,9 +265,7 @@ while run: # цикл игры
         if fallspeed < winy*0.025:
             fallspeed += winy*0.00166666667
     in_fall = True
-    #print(steps_attack)
     if in_attack:               # атака
-        #print(steps_attack)
         cool_down_count = 7
         if steps_attack != 3:
             y_attack = y - int(radius*0.4)
