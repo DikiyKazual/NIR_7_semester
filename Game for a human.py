@@ -28,6 +28,7 @@ jump_speed = [0, int(winy * 0.001666667), int(winy * 0.006666667), int(winy * 0.
               int(winy * 0.041666666)]  # при смене радиуса тут^тож исправить^
 y_attack = y - int(radius * 0.4)
 x_attack = x + facing * int(radius * 1.2)
+frame_iteration = 0
 
 # ДЛЯ СПРАЙТОВ
 player_picture_number = 1
