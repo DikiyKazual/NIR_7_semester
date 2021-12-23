@@ -339,7 +339,6 @@ while run: # цикл игры
         pygame.draw.circle(window, (0,random.randint(200, 255),80),(heal_pack.x, heal_pack.y), heal_pack.radius)
     for enemy in enemies:                   # рисуем врагов и их жизни int(winx*0.012)
         window.blit(enemy.get_pic(), (enemy.x-enemy.radius, enemy.y-int(enemy.radius*0.948)))
-        #pygame.draw.circle(window, (255,80,80),(enemy.x, enemy.y+int(enemy.radius*0.1)), int(enemy.radius*0.95))  #(прошлое без спрайта)########################################
         pygame.draw.line(window, (0,128,0), (enemy.x - int(winx*0.00625), enemy.y - enemy.radius - int(winx*0.004)), (enemy.x + int(winx*0.00625) - (int(20 * ((enemy.max_hp - enemy.hp) / enemy.max_hp)))/1600*winx, enemy.y - enemy.radius - int(winx*0.004)), 2)
     if hp != 0:                             # рисуем полоску жизни игрока
         pygame.draw.rect(window, (255,20,20), (int(winx*0.02), int(winy*0.024), (hp*25 / 1080) * winx, int(winy*0.02)))
@@ -355,12 +354,10 @@ while run: # цикл игры
         else:
             window.blit(player_sprite_list[player_picture_number + 11], (x - walk_x_shift, y - walk_y_shift))
     if steps_attack != -3:
-        pygame.draw.circle(window, (128, 128, 0), (x_attack, y_attack), radius_attack)
         if facing == 1:
             window.blit(player_in_attack_list[steps_attack + 2], (x-attack_right_x_shift, y-attack_right_y_shift))
         else:
             window.blit(player_in_attack_list[steps_attack + 8], (x-attack_left_x_shift, y-attack_left_y_shift))
-    pygame.draw.circle(window, (0,150,90), (x, y-radius), radius) # хитбокс головы
     pygame.display.update()
 
 
