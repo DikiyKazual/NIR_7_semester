@@ -4,13 +4,13 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 10000
+MAX_FRAME_ITERATION = 6000
 
 class PlatformerForAi:
     def __init__(self):
-        # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) # - для полноэкранного
-        # self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
-        self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
+        # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # - для полноэкранного
+        # self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
+        self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
@@ -264,7 +264,6 @@ class PlatformerForAi:
             pygame.quit()
             raise SystemExit
 
-
         if self.background_count < 8:
             self.background_count += 1
         else:
@@ -282,9 +281,6 @@ class PlatformerForAi:
             pygame.display.update()
             pygame.time.delay(2000)
             return reward, game_over, self.score
-
-
-
 
 
         for elem in self.platforms:
@@ -377,18 +373,18 @@ class PlatformerForAi:
                 if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
-                        reward = 20
+                        reward = 50
                         self.score += 2
                     else:
-                        reward = 10
+                        reward = 20
                         self.score += 1
                     if enemy.hp <= 0:
                         self.enemies.remove(enemy)  # враги умирают
                         if enemy == self.enemies[0]:
-                            reward = 300
+                            reward = 500
                             self.score += 300
                         else:
-                            reward = 100
+                            reward = 150
                             self.score += 50
                         if enemy == self.enemies[0]:
                             self.win = True

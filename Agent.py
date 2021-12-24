@@ -19,16 +19,11 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(11, 256, 5) # 11 входов, 5 выходов
+        self.model = Linear_QNet(12, 256, 5) # 12 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
-        #position = [game.x, game.y]
-        #point_to_left = [game.x - game.radius - game.speed, game.y]
-        #point_to_right = [game.x + game.radius + game.speed, game.y]
-        #point_to_bottom = [game.x, game.y + 2 * game.radius]
-        #point_to_top = [game.x, game.y - 2 * game.radius]
-
+        hp = game.hp
         # куда сейчас движется
         dir_up = game.in_jump
         dir_down = game.in_fall
@@ -66,6 +61,9 @@ class Agent:
 
 
         state = [
+            # Health of a player
+            hp,
+
             # Danger left
             danger_to_the_left,
 
@@ -94,11 +92,11 @@ class Agent:
 
 
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
+        self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
 
     def train_long_memory(self):
         if len(self.memory) > BATCH_SIZE:
-            mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
+            mini_sample = random.sample(self.memory, BATCH_SIZE)  # list of tuples
         else:
             mini_sample = self.memory
 
@@ -110,9 +108,8 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 80 - self.number_of_games
-           # right = 1 left = 2 up = 3 down = 4 attack = 5
-        final_move = [0,0,0,0,0]
+        self.epsilon = 60 - self.number_of_games
+        final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 4)
             final_move[move] = 1
