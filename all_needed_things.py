@@ -2,7 +2,6 @@ import pygame
 from enum import Enum
 
 
-
 class Enemy:
     def __init__(self, x0, y0, xk, x, y, radius, speed, hp):
         self.x0 = x0

@@ -5,6 +5,7 @@ from collections import deque
 from all_needed_things import Action
 
 
+
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 Learning_rate = 0.001
@@ -32,7 +33,12 @@ class Agent:
         pass
 
 def train():
-    pass
+    plot_scores = []
+    plot_average_score = []
+    total_score = 0
+    record = 0
+    agent = Agent()
+
 
 if __name__ == '__main__':
     train()

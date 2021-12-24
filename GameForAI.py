@@ -1,6 +1,8 @@
-import pygame, sys
-from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
+import sys
+import pygame
 import random
+from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
+
 
 pygame.init()
 window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
