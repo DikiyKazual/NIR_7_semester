@@ -2,7 +2,7 @@ import torch
 import random
 import numpy as np
 from collections import deque
-from all_needed_things import Action, balls_collide as b_k
+from all_needed_things import balls_collide as b_k
 from GameForAI import PlatformerForAi
 from Model import Linear_QNet, QTrainer
 import matplotlib.pyplot as plt

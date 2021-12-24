@@ -1,7 +1,6 @@
-import sys
 import pygame
 import random
-from all_needed_things import Enemy, Boss, Heal_pack, Action, balls_collide as b_k
+from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
@@ -9,15 +8,16 @@ SPEED = 25
 
 class PlatformerForAi:
     def __init__(self):
-        self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        self.clock = pygame.time.Clock()
+        # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) # - для полноэкранного
+        # self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
+        self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
-        self.frame_delay = 25  # регулирует скорость игры
+        self.frame_delay = 30  # регулирует скорость игры
         self.score = 0
         # for music
-        self.music_volume = 0.0  # 0.2 is default
+        self.music_volume = 0.2  # 0.2 is default
         self.file = 'Resources/OST.mp3'
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.mixer.init()
@@ -362,7 +362,7 @@ class PlatformerForAi:
             if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                     b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
                                                   int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
-                reward = -40
+                reward = -10
                 if enemy == self.enemies[0]:
                     self.hp -= 2
                 else:
@@ -372,10 +372,10 @@ class PlatformerForAi:
                 if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
-                        reward = 2
+                        reward = 20
                         self.score += 2
                     else:
-                        reward = 1
+                        reward = 10
                         self.score += 1
                     if enemy.hp <= 0:
                         self.enemies.remove(enemy)  # враги умирают
@@ -383,7 +383,7 @@ class PlatformerForAi:
                             reward = 300
                             self.score += 300
                         else:
-                            reward = 50
+                            reward = 100
                             self.score += 50
                         if enemy == self.enemies[0]:
                             self.win = True
@@ -434,7 +434,6 @@ class PlatformerForAi:
             else:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.attack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
-        self.clock.tick(SPEED)
         return reward, game_over, self.score
 
     def move_player(self, action):
