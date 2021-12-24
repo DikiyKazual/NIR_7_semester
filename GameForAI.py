@@ -161,28 +161,21 @@ class PlatformerForAi:
         self.D_not_pressed_timer = 100  # чтобы спрыг вниз нормально работал
         self.win = False  # флаг убийства босса
         self.jump_cool_down = 0
-        self.platforms = [(0, int(self.winy * 0.99), self.winx), (int(self.winx * 0.18), int(self.winy * 0.94), int(self.winx * 0.38)),
-                     (int(self.winx * 0.75), int(self.winy * 0.94), int(self.winx * 0.88)),
-                     (int(self.winx * 0.33), int(self.winy * 0.89), int(self.winx * 0.40)),
-                     (int(self.winx * 0.68), int(self.winy * 0.89), int(self.winx * 0.88)),
-                     (int(self.winx * 0.35), int(self.winy * 0.84), int(self.winx * 0.6)),
-                     (int(self.winx * 0.07), int(self.winy * 0.84), int(self.winx * 0.16)),
-                     (int(self.winx * 0.65), int(self.winy * 0.84), int(self.winx * 0.93)),
-                     (int(self.winx * 0.2), int(self.winy * 0.79), int(self.winx * 0.7)), (0, int(self.winy * 0.74), int(self.winx * 0.2)),
-                     (int(self.winx * 0.7), int(self.winy * 0.74), self.winx), (int(self.winx * 0.1), int(self.winy * 0.69), int(self.winx * 0.5)),
-                     (int(self.winx * 0.5), int(self.winy * 0.64), int(self.winx * 0.8)), (0, int(self.winy * 0.64), int(self.winx * 0.1)),
-                     (int(self.winx * 0.9), int(self.winy * 0.64), int(self.winx * 1)),
-                     (int(self.winx * 0.75), int(self.winy * 0.7), int(self.winx * 0.95)),
-                     (int(self.winx * 0.78), int(self.winy * 0.59), int(self.winx * 1)),
-                     (int(self.winx * 0.05), int(self.winy * 0.57), int(self.winx * 0.55)),
-                     (int(self.winx * 0.45), int(self.winy * 0.5), int(self.winx * 0.78)),
-                     (int(self.winx * 0.2), int(self.winy * 0.44), int(self.winx * 0.55)), (0, int(self.winy * 0.44), int(self.winx * 0.1)),
-                     (int(self.winx * 0.1), int(self.winy * 0.36), int(self.winx * 0.2)),
-                     (int(self.winx * 0.1), int(self.winy * 0.2), int(self.winx * 0.2)),
-                     (int(self.winx * 0.8), int(self.winy * 0.36), int(self.winx * 0.9)),
-                     (int(self.winx * 0.8), int(self.winy * 0.2), int(self.winx * 0.9)),
-                     (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)),
-                     (int(self.winx * 0.65), int(self.winy * 0.45), int(self.winx * 0.85))]
+        self.platforms = [(0, int(self.winy * 0.99), self.winx), (0, int(self.winy * 0.95), self.winx),
+                     (0, int(self.winy * 0.90), self.winx),
+                     (0, int(self.winy * 0.85), self.winx),
+                     (0, int(self.winy * 0.80), self.winx),
+                     (0, int(self.winy * 0.75), self.winx),
+                     (0, int(self.winy * 0.70), self.winx),
+                     (0, int(self.winy * 0.65), self.winx),
+                     (0, int(self.winy * 0.60), self.winx),
+                     (0, int(self.winy * 0.55), self.winx),
+                     (0, int(self.winy * 0.50), self.winx),
+                     (0, int(self.winy * 0.45), self.winx),
+                     (0, int(self.winy * 0.28), self.winx),
+                     (0, int(self.winy * 0.39), self.winx),
+                     (0, int(self.winy * 0.33), self.winx),
+                     (0, int(self.winy * 0.28), self.winx)]
         self.platform_visited_flag_list = [False] * len(self.platforms)
         self.run = True
 
@@ -191,7 +184,7 @@ class PlatformerForAi:
                             int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                             int(self.winx * 0.008), 90))
 
-        for elem in random.sample(self.platforms, random.randint(15, 20)):  # генератор ВРАГОВ
+        for elem in random.sample(self.platforms, random.randint(10, 13)):  # генератор ВРАГОВ
             if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
                 self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
                 self.enemies.append(
@@ -234,7 +227,7 @@ class PlatformerForAi:
             Boss(int(self.winx * 0.2) + self.radiuse / 2, int(self.winy * 0.39) - self.radiuse, int(self.winx * 0.8) - self.radiuse / 2,
                  int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                  int(self.winx * 0.008), 90))
-        for elem in random.sample(self.platforms, random.randint(15, 20)):  # генератор ВРАГОВ
+        for elem in random.sample(self.platforms, random.randint(10, 13)):  # генератор ВРАГОВ
             if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
                 self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
                 self.enemies.append(

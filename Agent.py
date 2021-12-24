@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(13, 256, 5) # 13 входов, 5 выходов
+        self.model = Linear_QNet(17, 256, 5) # 17 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -69,15 +69,22 @@ class Agent:
 
 
         state = [
+            # player horizontal position
+            game.x,
+
+            # player vertical position
+            game.y,
+
             # Health of a player
             hp,
 
             len(game.enemies),
+
             # расстояние до ближайшей лечилки
-            #min(distances_to_heal_packs),
+            min(distances_to_heal_packs),
 
             # расстояние до ближайшего врага
-            #min(distances_to_enemies),
+            min(distances_to_enemies),
 
             # Danger left
             danger_to_the_left,
@@ -97,8 +104,8 @@ class Agent:
             dir_attack,
 
             # Boss location
-            game.x > game.enemies[0].x, # boss to the left
-            game.x < game.enemies[0].x, # boss to the right
+            game.x > game.enemies[0].x,  # boss to the left
+            game.x < game.enemies[0].x,  # boss to the right
             game.y > game.enemies[0].y,  # boss to the up
             game.y < game.enemies[0].y  # boss to the down
             ]
