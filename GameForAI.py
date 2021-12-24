@@ -4,7 +4,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 5000
+MAX_FRAME_ITERATION = 2000
 
 class PlatformerForAi:
     def __init__(self):
@@ -150,6 +150,8 @@ class PlatformerForAi:
                               self.PLAYER_8, self.PLAYER_9, self.PLAYER_10, self.PLAYER_11, self.PLAYER_12]
         self.death_sprite = pygame.image.load('Resources/DEATH.png')
         self.death_sprite = pygame.transform.scale(self.death_sprite, (self.winx, self.winy))
+        self.time_is_up_sprite = pygame.image.load('Resources/TIME_IS_UP.png')
+        self.time_is_up_sprite = pygame.transform.scale(self.time_is_up_sprite, (self.winx, self.winy))
         self.win_sprite = pygame.image.load('Resources/WIN.png')
         self.win_sprite = pygame.transform.scale(self.win_sprite, (self.winx, self.winy))
 
@@ -266,11 +268,18 @@ class PlatformerForAi:
         else:
             self.background_count = 1
 
-        if self.hp <= 0 or self.frame_iteration > MAX_FRAME_ITERATION:  # текст смерти, если хп = 0 или долго
+        if self.hp <= 0:  # текст смерти, если хп = 0
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
-            pygame.time.delay(1200)
+            pygame.time.delay(1000)
             reward = -50 # за смерть
+            game_over = True
+            return reward, game_over, self.score
+        if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
+            self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
+            pygame.display.update()
+            pygame.time.delay(1000)
+            reward = -50  # за смерть
             game_over = True
             return reward, game_over, self.score
         if len(self.enemies) == 0 or self.win:  # текст победы
@@ -288,7 +297,7 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 if not self.platform_visited_flag_list[i]:
-                    reward = 5 # за то что побывал на новой платформе
+                    #reward = 5 # за то что побывал на новой платформе
                     self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
@@ -374,7 +383,7 @@ class PlatformerForAi:
                 if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
-                        reward = 50 # за то, что бьет босса
+                        reward = 30 # за то, что бьет босса
                         self.score += 2
                     else:
                         reward = 20  # за то, что бьет врага
@@ -399,7 +408,7 @@ class PlatformerForAi:
                 elif self.hp == self.max_hp:
                     continue
                 self.heal_packs.remove(heal_pack)
-                reward = 20
+                reward = 20 # за использование лечилки для восстановления здоровья
 
         self.window.blit(self.background_sprite_list[self.background_count - 1], (0, 0))  # рисуем фон
 

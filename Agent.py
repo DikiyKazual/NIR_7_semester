@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(13, 256, 5) # 13 входов, 5 выходов
+        self.model = Linear_QNet(15, 256, 5) # 15 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -37,18 +37,18 @@ class Agent:
 
         distances_to_enemies = []
 
-        for enemy in game.enemies:
-            distance = ((enemy.x - game.x) ** 2 + (enemy.y - game.y) ** 2) ** 0.5
+        for i in range(len(game.enemies)):
+            distance = ((game.enemies[i].x - game.x) ** 2 + (game.enemies[i].y - game.y) ** 2) ** 0.5
             distances_to_enemies.append(distance)
+        index_of_closest_enemy = np.argmin(distances_to_enemies)
 
 
 
         state = [
-            # player horizontal position
-            game.x,
-
-            # player vertical position
-            game.y,
+            game.x > game.enemies[index_of_closest_enemy].x,  # closest enemy to the left
+            game.x < game.enemies[index_of_closest_enemy].x,  # closest enemy to the right
+            game.y > game.enemies[index_of_closest_enemy].y,  # closest enemy to the top
+            game.y < game.enemies[index_of_closest_enemy].y,  # closest enemy to the bottom
 
             # Health of a player
             hp,
@@ -93,7 +93,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 30 - self.number_of_games
+        self.epsilon = 80 - self.number_of_games
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 4)
