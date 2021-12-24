@@ -4,7 +4,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 2000
+MAX_FRAME_ITERATION = 3000
 
 class PlatformerForAi:
     def __init__(self):
@@ -28,7 +28,7 @@ class PlatformerForAi:
         # описание параметров игрока
         self.x, self.y, self.radius, self.speed, self.jump_step, self.in_jump, self.in_fall, self.facing, self.hp, self.max_hp, self.in_attack, self.radius_attack, self.steps_attack, self.fallspeed = int(
             self.winx * 0.08), int(self.winy * 0.99) - int(self.winy * 0.02), int(self.winy * 0.02), int(
-            self.winx * 0.00875), 5, False, True, 1, 15, 15, False, int(self.winy * 0.03), -3, self.winy * 0.016666667
+            self.winx * 0.00875), 5, False, True, 1, 25, 25, False, int(self.winy * 0.03), -3, self.winy * 0.016666667
         self.jump_speed = [0, int(self.winy * 0.001666667), int(self.winy * 0.006666667), int(self.winy * 0.015),
                            int(self.winy * 0.026666666),
                            int(self.winy * 0.041666666)]
@@ -215,7 +215,7 @@ class PlatformerForAi:
         window = pygame.display.Info()
         self.winx, self.winy = window.current_w, window.current_h
         self.x, self.y, self.in_jump, self.in_fall, self.facing, self.hp, self.in_attack, self.steps_attack = int(self.winx * 0.08), int(self.winy * 0.99) - int(
-            self.winy * 0.02), False, True, 1, 15, False, -3
+            self.winy * 0.02), False, True, 1, 25, False, -3
         self.player_picture_number, self.background_count = 1, 1
         self.enemies, self.heal_packs = [], []
         self.increase, self.decrease = False, False  # для пульсации лечилок
@@ -297,14 +297,14 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 if not self.platform_visited_flag_list[i]:
-                    #reward = 5 # за то что побывал на новой платформе
+                    reward = 5 # за то что побывал на новой платформе
                     self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
 
         self.move_player(action)
         if (not bool(action[0])) and (not bool(action[1])) and (not bool(action[2])) and (not bool(action[3])):
-            reward = -2
+            reward = -2 # за бездействие на месте
 
 
         if self.D_not_pressed_timer <= 5:
@@ -387,32 +387,30 @@ class PlatformerForAi:
                 if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
-                        reward = 30 # за то, что бьет босса
+                        reward = 10  # за то, что бьет босса
                         self.score += 2
                     else:
-                        reward = 20  # за то, что бьет врага
+                        reward = 5  # за то, что бьет врага
                         self.score += 1
                     if enemy.hp <= 0:
                         self.enemies.remove(enemy)  # враги умирают
                         if enemy == self.enemies[0]:
-                            reward = 500  # за победу над боссом
+                            reward = 200  # за победу над боссом
                             self.score += 300
                         else:
-                            reward = 150  # за победу над врагом
+                            reward = 50  # за победу над врагом
                             self.score += 50
                         if enemy == self.enemies[0]:
                             self.win = True
 
         for heal_pack in self.heal_packs:  # прибавляем жизнь игроку при соприкосновении с лечилкой
             if b_k((self.x, self.y, self.radius), (heal_pack.x, heal_pack.y, heal_pack.radius)):
-                if self.hp <= 0.6 * self.max_hp:
-                    self.hp += 0.4 * self.max_hp
-                elif 0.6 * self.max_hp < self.hp < self.max_hp:
-                    self.hp += self.max_hp - self.hp
+                if self.hp < self.max_hp:
+                    self.hp = self.max_hp
                 elif self.hp == self.max_hp:
                     continue
                 self.heal_packs.remove(heal_pack)
-                reward = 20 # за использование лечилки для восстановления здоровья
+                reward = 20  # за использование лечилки для восстановления здоровья
 
         self.window.blit(self.background_sprite_list[self.background_count - 1], (0, 0))  # рисуем фон
 
@@ -429,8 +427,12 @@ class PlatformerForAi:
                                      int(20 * ((enemy.max_hp - enemy.hp) / enemy.max_hp))) / 1600 * self.winx,
                                  enemy.y - enemy.radius - int(self.winx * 0.004)), 2)
         if self.hp != 0:  # рисуем полоску жизни игрока
+            pygame.draw.rect(self.window, (90, 15, 15),
+                             (int(self.winx * 0.02), int(self.winy * 0.024),
+                              int(0.35 * self.winx), int(self.winy * 0.02)))
             pygame.draw.rect(self.window, (255, 20, 20),
-                             (int(self.winx * 0.02), int(self.winy * 0.024), int((self.hp * 25 / 1080) * self.winx), int(self.winy * 0.02)))
+                             (int(self.winx * 0.02), int(self.winy * 0.024),
+                              int((self.hp / self.max_hp * 0.35) * self.winx), int(self.winy * 0.02)))
 
         if self.facing == 1 and self.player_picture_number == 0 and self.steps_attack == -3:  # рисуем спрайт игрока
             self.window.blit(self.PLAYER1, (self.x - 1.85 * self.radius, self.y - 2.1 * self.radius))
@@ -453,7 +455,7 @@ class PlatformerForAi:
         return reward, game_over, self.score
 
     def move_player(self, action):
-        if bool(action[1]) and self.x - self.radius > int(self.winx * 0.00390625): #action == Action.go_left and self.x - self.radius > int(self.winx * 0.00390625):
+        if bool(action[1]) and self.x - self.radius > int(self.winx * 0.00390625):
             self.x -= self.speed
             if not self.in_attack:
                 self.facing = -1
@@ -461,9 +463,9 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif not bool(action[0]): #action != Action.go_right:
+        elif not bool(action[0]):
             self.player_picture_number = 0
-        if bool(action[0]) and self.x < int(self.winx * 0.99609375) - self.radius: #action == Action.go_right and self.x < int(self.winx * 0.99609375) - self.radius:
+        if bool(action[0]) and self.x < int(self.winx * 0.99609375) - self.radius:
             self.x += self.speed
             if not self.in_attack:
                 self.facing = 1
@@ -471,17 +473,17 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif bool(action[0]): #action != Action.go_right:
+        elif bool(action[0]):
             self.player_picture_number = 0
 
-        if bool(action[4]) and self.cool_down_count == 0: #action == Action.attack and self.cool_down_count == 0:
+        if bool(action[4]) and self.cool_down_count == 0:
             self.D_press_Count += 1  # счетчик нажатий клавиши D, для куллдауна
             self.in_attack = True
         if bool(action[3]) and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump: #action == Action.go_down and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump:
             self.D_not_pressed_timer = 0
             self.in_fall = True
         if not self.in_jump and not self.in_fall:
-            if bool(action[2]) and self.jump_cool_down == 0: #action == Action.go_up and self.jump_cool_down == 0:
+            if bool(action[2]) and self.jump_cool_down == 0:
                 self.in_jump = True
                 self.in_fall = True
 

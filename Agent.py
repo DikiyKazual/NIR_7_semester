@@ -2,7 +2,6 @@ import torch
 import random
 import numpy as np
 from collections import deque
-from all_needed_things import balls_collide as b_k
 from GameForAI import PlatformerForAi
 from Model import Linear_QNet, QTrainer
 import matplotlib.pyplot as plt
@@ -17,30 +16,46 @@ Learning_rate = 0.001 #0.001
 class Agent:
     def __init__(self):
         self.number_of_games = 0
-        self.epsilon = 0 # меняет случайность действий
+        self.epsilon = 0  # меняет случайность действий
         self.discount_rate = 0.9
-        self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(15, 256, 5) # 15 входов, 5 выходов
+        self.memory = deque(maxlen = MAX_MEMORY)  # при превышении объема удаляет с начала
+        self.model = Linear_QNet(18, 256, 5) # 18 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
         hp = game.hp
+        max_hp = game.max_hp
+        need_to_heal = False
+        if hp/max_hp < 0.47:
+            need_to_heal = True
+        facing = True
         # куда сейчас движется
+        if game.facing == 1:
+            facing = True
+        elif game.facing == -1:
+            facing = False
         dir_up = game.in_jump
         dir_down = game.in_fall
         dir_attack = game.in_attack
 
         distances_to_heal_packs = []
-        for heal_pack in game.heal_packs:
-            distance = ((heal_pack.x - game.x) ** 2 + (heal_pack.y - game.y) ** 2) ** 0.5
+        for i in range(len(game.heal_packs)):
+            distance = ((game.heal_packs[i].x - game.x) ** 2 + (game.heal_packs[i].y - game.y) ** 2) ** 0.5
             distances_to_heal_packs.append(distance)
+        index_of_closest_heal = np.argmin(distances_to_heal_packs)
 
         distances_to_enemies = []
-
         for i in range(len(game.enemies)):
             distance = ((game.enemies[i].x - game.x) ** 2 + (game.enemies[i].y - game.y) ** 2) ** 0.5
             distances_to_enemies.append(distance)
         index_of_closest_enemy = np.argmin(distances_to_enemies)
+
+        if (facing) and (game.x < game.enemies[index_of_closest_enemy].x):
+            facing_closest_enemy = True
+        elif (not facing) and (game.x > game.enemies[index_of_closest_enemy].x):
+            facing_closest_enemy = True
+        else:
+            facing_closest_enemy = False
 
 
 
@@ -50,21 +65,28 @@ class Agent:
             game.y > game.enemies[index_of_closest_enemy].y,  # closest enemy to the top
             game.y < game.enemies[index_of_closest_enemy].y,  # closest enemy to the bottom
 
-            # Health of a player
-            hp,
+            game.x > game.heal_packs[index_of_closest_heal].x,  # closest heal to the left
+            game.x < game.heal_packs[index_of_closest_heal].x,  # closest heal to the right
+            game.y > game.heal_packs[index_of_closest_heal].y,  # closest heal to the top
+            game.y < game.heal_packs[index_of_closest_heal].y,  # closest heal to the bottom
 
-            len(game.enemies),
+            # Health of a player
+            need_to_heal,
+
+            #len(game.enemies),
 
             # расстояние до ближайшей лечилки
-            min(distances_to_heal_packs),
+            #min(distances_to_heal_packs),
 
             # расстояние до ближайшего врага
-            min(distances_to_enemies),
+            #min(distances_to_enemies),
 
             # Move direction
+            facing,
             dir_up,
             dir_down,
             dir_attack,
+            facing_closest_enemy,
 
             # Boss location
             game.x > game.enemies[0].x,  # boss to the left
@@ -72,7 +94,6 @@ class Agent:
             game.y > game.enemies[0].y,  # boss to the up
             game.y < game.enemies[0].y  # boss to the down
             ]
-
         return np.array(state)#, dtype=int)
 
 
@@ -93,7 +114,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 80 - self.number_of_games
+        self.epsilon = 60 - self.number_of_games
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 4)
