@@ -9,34 +9,37 @@ from IPython import display
 
 
 MAX_MEMORY = 100_000
-BATCH_SIZE = 1000
-Learning_rate = 0.001 #0.001
+BATCH_SIZE = 1000  # 1000
+Learning_rate = 0.000001  #0.001
 
 
 class Agent:
     def __init__(self):
         self.number_of_games = 0
         self.epsilon = 0  # меняет случайность действий
-        self.discount_rate = 0.9
+        self.discount_rate = 0.9  # 0.9
         self.memory = deque(maxlen = MAX_MEMORY)  # при превышении объема удаляет с начала
-        self.model = Linear_QNet(18, 256, 5) # 18 входов, 5 выходов
+        self.model = Linear_QNet(25, 512, 5) # 25 входов, 5 выходов  #(, 256, 5)
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
+        x = game.x
+        y = game.y
         hp = game.hp
         max_hp = game.max_hp
         need_to_heal = False
-        if hp/max_hp < 0.47:
+        if hp/max_hp < 0.65:
             need_to_heal = True
         facing = True
+        facing_center = True
         # куда сейчас движется
         if game.facing == 1:
             facing = True
         elif game.facing == -1:
             facing = False
-        dir_up = game.in_jump
-        dir_down = game.in_fall
-        dir_attack = game.in_attack
+        in_jump = game.in_jump
+        in_fall = game.in_fall
+        in_attack = game.in_attack
 
         distances_to_heal_packs = []
         for i in range(len(game.heal_packs)):
@@ -57,9 +60,38 @@ class Agent:
         else:
             facing_closest_enemy = False
 
-
+        if (game.x <= int(game.winx/2)) and facing:
+            facing_center = True
+        elif (game.x >= int(game.winx/2)) and (not facing):
+            facing_center = True
+        else:
+            facing_center = False
 
         state = [
+            x,
+            y,
+            hp,  # Health of a player
+            need_to_heal,
+
+            len(game.enemies),
+
+            min(distances_to_heal_packs),  # расстояние до ближайшей лечилки
+
+            min(distances_to_enemies),  # расстояние до ближайшего врага
+
+            facing,  # Move direction
+            in_jump,
+            in_fall,
+            in_attack,
+            facing_closest_enemy,
+            facing_center,
+
+
+            game.x > game.enemies[0].x,  # boss to the left
+            game.x < game.enemies[0].x,  # boss to the right
+            game.y > game.enemies[0].y,  # boss to the up
+            game.y < game.enemies[0].y,  # boss to the down
+
             game.x > game.enemies[index_of_closest_enemy].x,  # closest enemy to the left
             game.x < game.enemies[index_of_closest_enemy].x,  # closest enemy to the right
             game.y > game.enemies[index_of_closest_enemy].y,  # closest enemy to the top
@@ -68,33 +100,9 @@ class Agent:
             game.x > game.heal_packs[index_of_closest_heal].x,  # closest heal to the left
             game.x < game.heal_packs[index_of_closest_heal].x,  # closest heal to the right
             game.y > game.heal_packs[index_of_closest_heal].y,  # closest heal to the top
-            game.y < game.heal_packs[index_of_closest_heal].y,  # closest heal to the bottom
-
-            # Health of a player
-            need_to_heal,
-
-            #len(game.enemies),
-
-            # расстояние до ближайшей лечилки
-            #min(distances_to_heal_packs),
-
-            # расстояние до ближайшего врага
-            #min(distances_to_enemies),
-
-            # Move direction
-            facing,
-            dir_up,
-            dir_down,
-            dir_attack,
-            facing_closest_enemy,
-
-            # Boss location
-            game.x > game.enemies[0].x,  # boss to the left
-            game.x < game.enemies[0].x,  # boss to the right
-            game.y > game.enemies[0].y,  # boss to the up
-            game.y < game.enemies[0].y  # boss to the down
+            game.y < game.heal_packs[index_of_closest_heal].y  # closest heal to the bottom
             ]
-        return np.array(state)#, dtype=int)
+        return np.array(state, dtype=int)
 
 
     def remember(self, state, action, reward, next_state, done):
@@ -114,9 +122,9 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 60 - self.number_of_games
+        self.epsilon = 160 - self.number_of_games  # 80
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
-        if random.randint(0, 200) < self.epsilon:
+        if random.randint(0, 400) < self.epsilon:  # (0, 200)
             move = random.randint(0, 4)
             final_move[move] = 1
         else:

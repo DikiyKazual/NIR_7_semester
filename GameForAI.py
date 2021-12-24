@@ -4,7 +4,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 3000
+MAX_FRAME_ITERATION = 2000
 
 class PlatformerForAi:
     def __init__(self):
@@ -272,14 +272,14 @@ class PlatformerForAi:
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1000)
-            reward = -50 # за смерть
+            reward -= 50 # за смерть
             game_over = True
             return reward, game_over, self.score
         if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
             self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1000)
-            reward = -20  # за смерть
+            reward -= 50  # за смерть
             game_over = True
             return reward, game_over, self.score
         if len(self.enemies) == 0 or self.win:  # текст победы
@@ -297,14 +297,14 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 if not self.platform_visited_flag_list[i]:
-                    reward = 5 # за то что побывал на новой платформе
+                    reward += 0 # за то что побывал на новой платформе
                     self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
 
         self.move_player(action)
-        if (not bool(action[0])) and (not bool(action[1])):  # and (not bool(action[2])) and (not bool(action[3])):
-            reward = -1 # за бездействие на месте
+        #if (not bool(action[0])) and (not bool(action[1])):  # and (not bool(action[2])) and (not bool(action[3])):
+        #    reward -= 1 # за бездействие на месте
 
 
         if self.D_not_pressed_timer <= 5:
@@ -377,7 +377,7 @@ class PlatformerForAi:
             if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                     b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
                                                   int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
-                reward = -1 # за получение урона
+                reward -= 1 # за получение урона
                 if enemy == self.enemies[0]:
                     self.hp -= 2
                 else:
@@ -387,18 +387,18 @@ class PlatformerForAi:
                 if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
-                        reward = 10  # за то, что бьет босса
+                        reward += 30  # за то, что бьет босса
                         self.score += 2
                     else:
-                        reward = 5  # за то, что бьет врага
+                        reward += 15  # за то, что бьет врага
                         self.score += 1
                     if enemy.hp <= 0:
                         self.enemies.remove(enemy)  # враги умирают
                         if enemy == self.enemies[0]:
-                            reward = 200  # за победу над боссом
+                            reward += 400  # за победу над боссом
                             self.score += 300
                         else:
-                            reward = 50  # за победу над врагом
+                            reward += 50  # за победу над врагом
                             self.score += 50
                         if enemy == self.enemies[0]:
                             self.win = True
@@ -410,7 +410,7 @@ class PlatformerForAi:
                 elif self.hp == self.max_hp:
                     continue
                 self.heal_packs.remove(heal_pack)
-                reward = 20  # за использование лечилки для восстановления здоровья
+                reward += 50  # за использование лечилки для восстановления здоровья
 
         self.window.blit(self.background_sprite_list[self.background_count - 1], (0, 0))  # рисуем фон
 
@@ -457,8 +457,8 @@ class PlatformerForAi:
     def move_player(self, action):
         if bool(action[1]) and self.x - self.radius > int(self.winx * 0.00390625):
             self.x -= self.speed
-            if not self.in_attack:
-                self.facing = -1
+            #if not self.in_attack:
+            self.facing = -1
             if self.player_picture_number < 12:
                 self.player_picture_number += 1
             else:
@@ -467,8 +467,8 @@ class PlatformerForAi:
             self.player_picture_number = 0
         if bool(action[0]) and self.x < int(self.winx * 0.99609375) - self.radius:
             self.x += self.speed
-            if not self.in_attack:
-                self.facing = 1
+            #if not self.in_attack:
+            self.facing = 1
             if self.player_picture_number < 12:
                 self.player_picture_number += 1
             else:

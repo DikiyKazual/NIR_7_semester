@@ -274,8 +274,8 @@ while run:  # цикл игры
         run = False
     if keys[pygame.K_LEFT] and x - radius > int(winx * 0.00390625):
         x -= speed
-        if not in_attack:
-            facing = -1
+        #if not in_attack:
+        facing = -1
         if player_picture_number < 12:
             player_picture_number += 1
         else:
@@ -284,8 +284,8 @@ while run:  # цикл игры
         player_picture_number = 0
     if keys[pygame.K_RIGHT] and x < int(winx * 0.99609375) - radius:
         x += speed
-        if not in_attack:
-            facing = 1
+        #if not in_attack:
+        facing = 1
         if player_picture_number < 12:
             player_picture_number += 1
         else:
