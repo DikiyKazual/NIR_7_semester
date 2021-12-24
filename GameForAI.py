@@ -5,6 +5,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
+SPEED = 40
 
 class PlatformerForAi:
     def __init__(self):
@@ -208,6 +209,7 @@ class PlatformerForAi:
 
         pygame.display.update()
         self.keys = pygame.key.get_pressed()
+        #self.reset_game()
 
 
     def reset_game(self):
@@ -245,7 +247,7 @@ class PlatformerForAi:
         pygame.display.update()
 
 
-    def frame_step(self):
+    def frame_step(self, action):
         self.frame_iteration += 1
         reward = 0
         game_over = False
@@ -275,30 +277,9 @@ class PlatformerForAi:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             self.run = False
-        if False:  #action == go_left and self.x - self.radius > int(self.winx * 0.00390625):
-            self.x -= self.speed
-            if not self.in_attack:
-                self.facing = -1
-            if self.player_picture_number < 12:
-                self.player_picture_number += 1
-            else:
-                self.player_picture_number = 1
-        elif False:  #action == go_right is False:
-            self.player_picture_number = 0
-        if False:  #action == go_right and self.x < int(self.winx * 0.99609375) - self.radius:
-            self.x += self.speed
-            if not self.in_attack:
-                self.facing = 1
-            if self.player_picture_number < 12:
-                self.player_picture_number += 1
-            else:
-                self.player_picture_number = 1
-        elif False:  #action == go_left is False:
-            self.player_picture_number = 0
 
-        if False:  #action == attack and self.cool_down_count == 0:
-            self.D_press_Count += 1  # счетчик нажатий клавиши D, для куллдауна
-            self.in_attack = True
+        self.move_player(action)
+
         for elem in self.platforms:
             if abs(self.y + self.radius - elem[1]) < int(self.fallspeed + self.winy * 0.001666667) and self.y + self.radius - elem[1] <= 0 and elem[
                 0] <= self.x <= elem[2] and self.D_not_pressed_timer > 0:
@@ -306,15 +287,10 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 self.fallspeed = self.winy * 0.0166666667
-        if False: #action == go_down and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump:
-            self.D_not_pressed_timer = 0
-            self.in_fall = True
+
         if self.D_not_pressed_timer <= 5:
             self.D_not_pressed_timer += 1
-        if not self.in_jump and not self.in_fall:
-            if  False: #action == go_up and self.jump_cool_down == 0:
-                self.in_jump = True
-                self.in_fall = True
+
         if self.in_jump:
             if self.jump_step >= -5:
                 if self.jump_step >= 0:
@@ -450,7 +426,41 @@ class PlatformerForAi:
             else:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.ttack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
+        self.clock.tick(SPEED)
         return reward, game_over
+
+    def move_player(self, action):
+        if action == 2 and self.x - self.radius > int(self.winx * 0.00390625):
+            self.x -= self.speed
+            if not self.in_attack:
+                self.facing = -1
+            if self.player_picture_number < 12:
+                self.player_picture_number += 1
+            else:
+                self.player_picture_number = 1
+        elif action == 1 is False:
+            self.player_picture_number = 0
+        if action == 1 and self.x < int(self.winx * 0.99609375) - self.radius:
+            self.x += self.speed
+            if not self.in_attack:
+                self.facing = 1
+            if self.player_picture_number < 12:
+                self.player_picture_number += 1
+            else:
+                self.player_picture_number = 1
+        elif action == 2 is False:
+            self.player_picture_number = 0
+
+        if action == 5 and self.cool_down_count == 0:
+            self.D_press_Count += 1  # счетчик нажатий клавиши D, для куллдауна
+            self.in_attack = True
+        if action == 4 and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump:
+            self.D_not_pressed_timer = 0
+            self.in_fall = True
+        if not self.in_jump and not self.in_fall:
+            if  action == 3 and self.jump_cool_down == 0:
+                self.in_jump = True
+                self.in_fall = True
 
 
 
