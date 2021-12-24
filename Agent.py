@@ -13,6 +13,7 @@ MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 Learning_rate = 0.001
 
+
 class Agent:
     def __init__(self):
         self.number_of_games = 0

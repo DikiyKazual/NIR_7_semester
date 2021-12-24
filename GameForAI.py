@@ -14,7 +14,7 @@ class PlatformerForAi:
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
-        self.frame_delay = 5  # регулирует скорость игры
+        self.frame_delay = 0  # регулирует скорость игры
         self.score = 0
         # for music
         self.music_volume = 0.1  # 0.2 is default
@@ -258,6 +258,10 @@ class PlatformerForAi:
         game_over = False
         pygame.time.delay(self.frame_delay)  # задержка между кадрами
 
+        if (0 > self.x) or (self.x > self.winx) or (0 > self.y) or (self.y > self.winy):
+            reward = -100
+            game_over = True
+            return reward, game_over, self.score
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
