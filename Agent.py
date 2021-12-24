@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(14, 256, 5) # 14 входов, 5 выходов
+        self.model = Linear_QNet(13, 256, 5) # 13 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -72,11 +72,12 @@ class Agent:
             # Health of a player
             hp,
 
+            len(game.enemies),
             # расстояние до ближайшей лечилки
-            min(distances_to_heal_packs),
+            #min(distances_to_heal_packs),
 
             # расстояние до ближайшего врага
-            min(distances_to_enemies),
+            #min(distances_to_enemies),
 
             # Danger left
             danger_to_the_left,
@@ -132,6 +133,7 @@ class Agent:
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
+            final_move[3] = 1
         return final_move
 
 def train():
@@ -142,7 +144,6 @@ def train():
     agent = Agent()
     game = PlatformerForAi()
     while True:
-        print("SSSSSSSss")
         # get old state
         state_old = agent.get_state(game)
 

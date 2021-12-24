@@ -261,9 +261,7 @@ class PlatformerForAi:
         pygame.time.delay(self.frame_delay)  # задержка между кадрами
 
         if (0 > self.x) or (self.x > self.winx) or (0 > self.y) or (self.y > self.winy): # если упал за карту
-            #reward = -100
-            game_over = True
-            return reward, game_over, self.score
+            self.x, self.y =  (self.winx * 0.08), int(self.winy * 0.99) - int(self.winy * 0.02)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
