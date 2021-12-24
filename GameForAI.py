@@ -184,7 +184,7 @@ class PlatformerForAi:
                             int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                             int(self.winx * 0.008), 90))
 
-        for elem in random.sample(self.platforms, random.randint(10, 13)):  # генератор ВРАГОВ
+        for elem in random.sample(self.platforms, 12):  # генератор ВРАГОВ
             if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
                 self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
                 self.enemies.append(
@@ -194,7 +194,7 @@ class PlatformerForAi:
             else:
                 continue
 
-        for elem in random.sample(self.platforms, random.randint(10, 12)):  # генератор ХИЛОК
+        for elem in random.sample(self.platforms, 10):  # генератор ХИЛОК
             self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
             self.heal_packs.append(
                 Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
@@ -227,7 +227,7 @@ class PlatformerForAi:
             Boss(int(self.winx * 0.2) + self.radiuse / 2, int(self.winy * 0.39) - self.radiuse, int(self.winx * 0.8) - self.radiuse / 2,
                  int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                  int(self.winx * 0.008), 90))
-        for elem in random.sample(self.platforms, random.randint(10, 13)):  # генератор ВРАГОВ
+        for elem in random.sample(self.platforms, 12):  # генератор ВРАГОВ
             if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
                 self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
                 self.enemies.append(
@@ -239,7 +239,7 @@ class PlatformerForAi:
                 continue
         self.platform_visited_flag_list = [False] * len(self.platforms)
 
-        for elem in random.sample(self.platforms, random.randint(10, 12)):  # генератор ХИЛОК
+        for elem in random.sample(self.platforms, 10):  # генератор ХИЛОК
             self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
             self.heal_packs.append(Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
                                         random.randint(2, 10), random.randint(10, 20)))

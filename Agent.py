@@ -11,7 +11,7 @@ from IPython import display
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
-Learning_rate = 0.001
+Learning_rate = 0.001 #0.001
 
 
 class Agent:
@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(17, 256, 5) # 17 входов, 5 выходов
+        self.model = Linear_QNet(13, 256, 5) # 13 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -29,11 +29,6 @@ class Agent:
         dir_up = game.in_jump
         dir_down = game.in_fall
         dir_attack = game.in_attack
-
-        danger_to_the_left = False
-        danger_to_the_right = False
-        danger_to_the_up = False
-        danger_to_the_down = False
 
         distances_to_heal_packs = []
         for heal_pack in game.heal_packs:
@@ -44,26 +39,6 @@ class Agent:
 
         for enemy in game.enemies:
             distance = ((enemy.x - game.x) ** 2 + (enemy.y - game.y) ** 2) ** 0.5
-            if (b_k((game.x - game.radius - game.speed, game.y, game.radius),
-                    (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
-                        b_k((game.x - game.radius - game.speed, game.y - game.radius, game.radius), (enemy.x, enemy.y,
-                                                                          int(enemy.radius * 0.9))))):
-                danger_to_the_left = True
-            if (b_k((game.x + game.radius + game.speed, game.y, game.radius),
-                    (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
-                        b_k((game.x + game.radius + game.speed, game.y - game.radius, game.radius), (enemy.x, enemy.y,
-                                                                          int(enemy.radius * 0.9))))):
-                danger_to_the_right = True
-            if (b_k((game.x, game.y - 2 * game.radius, game.radius),
-                    (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
-                        b_k((game.x, game.y - 3 * game.radius, game.radius), (enemy.x, enemy.y,
-                                                                          int(enemy.radius * 0.9))))):
-                danger_to_the_up = True
-            if (b_k((game.x, game.y + 2 * game.radius, game.radius),
-                    (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
-                        b_k((game.x, game.y + game.radius, game.radius), (enemy.x, enemy.y,
-                                                                          int(enemy.radius * 0.9))))):
-                danger_to_the_down = True
             distances_to_enemies.append(distance)
 
 
@@ -85,18 +60,6 @@ class Agent:
 
             # расстояние до ближайшего врага
             min(distances_to_enemies),
-
-            # Danger left
-            danger_to_the_left,
-
-            # Danger right
-            danger_to_the_right,
-
-            # Danger up
-            danger_to_the_up,
-
-            # Danger down
-            danger_to_the_down,
 
             # Move direction
             dir_up,
@@ -130,7 +93,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 60 - self.number_of_games
+        self.epsilon = 30 - self.number_of_games
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 4)
@@ -140,7 +103,6 @@ class Agent:
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
-            final_move[3] = 1
         return final_move
 
 def train():
