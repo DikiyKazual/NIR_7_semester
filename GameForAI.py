@@ -214,6 +214,7 @@ class PlatformerForAi:
 
     def reset_game(self):
         self.frame_iteration = 0
+        self.score = 0
         self.x, self.y, self.in_jump, self.in_fall, self.facing, self.hp, self.in_attack, self.steps_attack = int(self.winx * 0.08), int(self.winy * 0.99) - int(
             self.winy * 0.02), False, True, 1, 15, False, -3
         self.player_picture_number, self.background_count = 1, 1
@@ -267,12 +268,12 @@ class PlatformerForAi:
             pygame.time.delay(1200)
             reward = -100
             game_over = True
-            return reward, game_over
+            return reward, game_over, self.score
         if len(self.enemies) == 0 or self.win:  # текст победы
             self.window.blit(self.win_sprite, (0, 0))  # рисуем текст победы
             pygame.display.update()
             pygame.time.delay(2000)
-            return reward, game_over
+            return reward, game_over, self.score
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
@@ -369,14 +370,18 @@ class PlatformerForAi:
                     enemy.hp -= 2
                     if enemy == self.enemies[0]:
                         reward = 2
+                        self.score += 2
                     else:
                         reward = 1
+                        self.score += 1
                     if enemy.hp <= 0:
                         self.enemies.remove(enemy)  # враги умирают
                         if enemy == self.enemies[0]:
                             reward = 300
+                            self.score += 300
                         else:
                             reward = 50
+                            self.score += 50
                         if enemy == self.enemies[0]:
                             self.win = True
 
@@ -427,7 +432,7 @@ class PlatformerForAi:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.ttack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
         self.clock.tick(SPEED)
-        return reward, game_over
+        return reward, game_over, self.score
 
     def move_player(self, action):
         if action == 2 and self.x - self.radius > int(self.winx * 0.00390625):

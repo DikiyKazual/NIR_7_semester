@@ -4,7 +4,9 @@ import numpy as np
 from collections import deque
 from all_needed_things import Action, balls_collide as b_k
 from GameForAI import PlatformerForAi
-
+from Model import Linear_QNet, QTrainer
+import matplotlib.pyplot as plt
+from IPython import display
 
 
 MAX_MEMORY = 100_000
@@ -15,10 +17,10 @@ class Agent:
     def __init__(self):
         self.number_of_games = 0
         self.epsilon = 0 # меняет случайность действий
-        self.discount_rate = 0
+        self.discount_rate = 0.9
         self.memory = deque(max_lenght = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(11, 256, 3)
-        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+        self.model = Linear_QNet(11, 256, 5)
+        self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
         #position = [game.x, game.y]
@@ -63,8 +65,6 @@ class Agent:
                 danger_to_the_down = True
 
 
-
-
         state = [
             # Danger left
             danger_to_the_left,
@@ -104,13 +104,24 @@ class Agent:
 
         states, actions, rewards, next_states, dones = zip(*mini_sample)
         self.trainer.train_step(states, actions, rewards, next_states, dones)
-        #for state, action, reward, nexrt_state, done in mini_sample:
-        #    self.trainer.train_step(state, action, reward, next_state, done)
 
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
 
     def get_action(self, state):
+        # random moves
+        self.epsilon = 80 - self.number_of_games
+        final_move = [0,0,0]
+        if random.randint(0, 200) < self.epsilon:
+            move = random.randint(0, 2)
+            final_move[move] = 1
+        else:
+            state0 = torch.tensor(state, dtype=torch.float)
+            prediction = self.model(state0)
+            move = torch.argmax(prediction).item()
+            final_move[move] = 1
+
+        return final_move
         pass
 
 def train():
@@ -128,7 +139,7 @@ def train():
         final_move = agent.get_action(state_old)
 
         # perform move and get new state
-        reward, done, score = game.play_step(final_move)
+        reward, done, score = game.frame_step(final_move)
         state_new = agent.get_state(game)
 
         # train short memory
@@ -154,6 +165,23 @@ def train():
             mean_score = total_score / agent.number_of_games
             plot_average_score.append(mean_score)
             plot(plot_scores, plot_average_score)
+
+
+plt.ion()
+def plot(scores, mean_scores):
+    display.clear_output(wait=True)
+    display.display(plt.gcf())
+    plt.clf()
+    plt.title('Training...')
+    plt.xlabel('Number of Games')
+    plt.ylabel('Score')
+    plt.plot(scores)
+    plt.plot(mean_scores)
+    plt.ylim(ymin=0)
+    plt.text(len(scores)-1, scores[-1], str(scores[-1]))
+    plt.text(len(mean_scores)-1, mean_scores[-1], str(mean_scores[-1]))
+    plt.show(block=False)
+    plt.pause(.1)
 
 
 if __name__ == '__main__':
