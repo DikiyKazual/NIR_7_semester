@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(12, 256, 5) # 12 входов, 5 выходов
+        self.model = Linear_QNet(14, 256, 5) # 14 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -35,35 +35,48 @@ class Agent:
         danger_to_the_up = False
         danger_to_the_down = False
 
+        distances_to_heal_packs = []
+        for heal_pack in game.heal_packs:
+            distance = ((heal_pack.x - game.x) ** 2 + (heal_pack.y - game.y) ** 2) ** 0.5
+            distances_to_heal_packs.append(distance)
+
+        distances_to_enemies = []
+
         for enemy in game.enemies:
+            distance = ((enemy.x - game.x) ** 2 + (enemy.y - game.y) ** 2) ** 0.5
             if (b_k((game.x - game.radius - game.speed, game.y, game.radius),
                     (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                         b_k((game.x - game.radius - game.speed, game.y - game.radius, game.radius), (enemy.x, enemy.y,
                                                                           int(enemy.radius * 0.9))))):
                 danger_to_the_left = True
-        for enemy in game.enemies:
             if (b_k((game.x + game.radius + game.speed, game.y, game.radius),
                     (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                         b_k((game.x + game.radius + game.speed, game.y - game.radius, game.radius), (enemy.x, enemy.y,
                                                                           int(enemy.radius * 0.9))))):
                 danger_to_the_right = True
-        for enemy in game.enemies:
             if (b_k((game.x, game.y - 2 * game.radius, game.radius),
                     (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                         b_k((game.x, game.y - 3 * game.radius, game.radius), (enemy.x, enemy.y,
                                                                           int(enemy.radius * 0.9))))):
                 danger_to_the_up = True
-        for enemy in game.enemies:
             if (b_k((game.x, game.y + 2 * game.radius, game.radius),
                     (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                         b_k((game.x, game.y + game.radius, game.radius), (enemy.x, enemy.y,
                                                                           int(enemy.radius * 0.9))))):
                 danger_to_the_down = True
+            distances_to_enemies.append(distance)
+
 
 
         state = [
             # Health of a player
             hp,
+
+            # расстояние до ближайшей лечилки
+            min(distances_to_heal_packs),
+
+            # расстояние до ближайшего врага
+            min(distances_to_enemies),
 
             # Danger left
             danger_to_the_left,
@@ -89,7 +102,7 @@ class Agent:
             game.y < game.enemies[0].y  # boss to the down
             ]
 
-        return np.array(state, dtype=int)
+        return np.array(state)#, dtype=int)
 
 
     def remember(self, state, action, reward, next_state, done):
@@ -129,6 +142,7 @@ def train():
     agent = Agent()
     game = PlatformerForAi()
     while True:
+        print("SSSSSSSss")
         # get old state
         state_old = agent.get_state(game)
 
