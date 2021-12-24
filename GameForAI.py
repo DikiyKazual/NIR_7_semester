@@ -5,7 +5,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-SPEED = 40
+SPEED = 25
 
 class PlatformerForAi:
     def __init__(self):
