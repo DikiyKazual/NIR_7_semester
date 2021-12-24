@@ -11,11 +11,11 @@ class PlatformerForAi:
     def __init__(self):
         self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
-        self.reset
-        #displ = pygame.display.Info()
-        self.winx, self.winy = self.window.current_w, self.window.current_h
+        displ = pygame.display.Info()
+        self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
         self.frame_delay = 25  # регулирует скорость игры
+        self.score = 0
         # for music
         self.music_volume = 0.0  # 0.2 is default
         self.file = 'Resources/OST.mp3'
@@ -215,6 +215,8 @@ class PlatformerForAi:
     def reset_game(self):
         self.frame_iteration = 0
         self.score = 0
+        window = pygame.display.Info()
+        self.winx, self.winy = window.current_w, window.current_h
         self.x, self.y, self.in_jump, self.in_fall, self.facing, self.hp, self.in_attack, self.steps_attack = int(self.winx * 0.08), int(self.winy * 0.99) - int(
             self.winy * 0.02), False, True, 1, 15, False, -3
         self.player_picture_number, self.background_count = 1, 1
@@ -443,7 +445,7 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif action == 1 is False:
+        elif action != 1:
             self.player_picture_number = 0
         if action == 1 and self.x < int(self.winx * 0.99609375) - self.radius:
             self.x += self.speed
@@ -453,7 +455,7 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif action == 2 is False:
+        elif action != 2:
             self.player_picture_number = 0
 
         if action == 5 and self.cool_down_count == 0:

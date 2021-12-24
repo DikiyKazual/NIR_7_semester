@@ -18,7 +18,7 @@ class Agent:
         self.number_of_games = 0
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
-        self.memory = deque(max_lenght = MAX_MEMORY) # при превышении объема удаляет с начала
+        self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
         self.model = Linear_QNet(11, 256, 5)
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
