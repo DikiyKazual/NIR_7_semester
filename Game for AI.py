@@ -148,6 +148,8 @@ player_sprite_list = [PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAY
 
 
 def reset_game():
+    global frame_iteration
+    frame_iteration = 0
     global x, y, in_jump, in_fall, facing, hp, in_attack, steps_attack
     x, y, in_jump, in_fall, facing, hp, in_attack, steps_attack = int(winx * 0.08), int(winy * 0.99) - int(
         winy * 0.02), False, True, 1, 15, False, -3
@@ -249,6 +251,7 @@ pygame.display.update()
 keys = pygame.key.get_pressed()
 
 while run:  # цикл игры
+    reward = 0
     for event in pygame.event.get():
         if event.type == pygame.QUIT: run = False
 
@@ -259,11 +262,11 @@ while run:  # цикл игры
     else:
         background_count = 1
 
-    if hp <= 0:  # текст смерти
+    if hp <= 0 or frame_iteration > 10000:  # текст смерти, если хп = 0 или долго
         window.blit(death_sprite, (0, 0))  # рисуем текст смерти
         pygame.display.update()
         pygame.time.delay(2000)
-        reward -= 100
+        reward += 100
         break
     if len(enemies) == 0 or win:  # текст победы
         window.blit(win_sprite, (0, 0))  # рисуем текст победы
@@ -447,6 +450,7 @@ while run:  # цикл игры
             window.blit(player_in_attack_list[steps_attack + 2], (x - attack_right_x_shift, y - attack_right_y_shift))
         else:
             window.blit(player_in_attack_list[steps_attack + 8], (x - attack_left_x_shift, y - attack_left_y_shift))
+    get_frame_reward(reward)
     pygame.display.update()
 
 reset_game()

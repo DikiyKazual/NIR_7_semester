@@ -1,4 +1,5 @@
-import random, pygame
+import pygame
+from enum import Enum
 
 
 
@@ -99,7 +100,13 @@ class Boss(Enemy):
         BOSS_8 = pygame.transform.smoothscale(BOSS_8, (2*radius, 2*radius))
         self.picture = [BOSS1,BOSS2,BOSS3,BOSS4,BOSS5,BOSS6,BOSS7,BOSS8,BOSS_1,BOSS_2,BOSS_3,BOSS_4,BOSS_5,BOSS_6,BOSS_7,BOSS_8]
 
-        
+
+class Action(Enum):
+    go_right = 1
+    go_left = 2
+    go_up = 3
+    go_down = 4
+    attack = 5
 
 
 class Heal_pack:
