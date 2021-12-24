@@ -4,18 +4,17 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-SPEED = 25
+MAX_FRAME_ITERATION = 10000
 
 class PlatformerForAi:
     def __init__(self):
         # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) # - для полноэкранного
         # self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
         self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
-        self.clock = pygame.time.Clock()
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
-        self.frame_delay = 30  # регулирует скорость игры
+        self.frame_delay = 5  # регулирует скорость игры
         self.score = 0
         # for music
         self.music_volume = 0.1  # 0.2 is default
@@ -271,7 +270,7 @@ class PlatformerForAi:
         else:
             self.background_count = 1
 
-        if self.hp <= 0 or self.frame_iteration > 1000:  # текст смерти, если хп = 0 или долго
+        if self.hp <= 0 or self.frame_iteration > MAX_FRAME_ITERATION:  # текст смерти, если хп = 0 или долго
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1200)
@@ -286,7 +285,7 @@ class PlatformerForAi:
 
 
 
-        self.move_player(action)
+
 
         for elem in self.platforms:
             if abs(self.y + self.radius - elem[1]) < int(self.fallspeed + self.winy * 0.001666667) and self.y + self.radius - elem[1] <= 0 and elem[
@@ -295,6 +294,8 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 self.fallspeed = self.winy * 0.0166666667
+
+        self.move_player(action)
 
         if self.D_not_pressed_timer <= 5:
             self.D_not_pressed_timer += 1
@@ -438,12 +439,10 @@ class PlatformerForAi:
             else:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.attack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
-        self.clock.tick(SPEED)
         pygame.event.pump()
         return reward, game_over, self.score
 
     def move_player(self, action):
-
         if bool(action[1]) and self.x - self.radius > int(self.winx * 0.00390625): #action == Action.go_left and self.x - self.radius > int(self.winx * 0.00390625):
             self.x -= self.speed
             if not self.in_attack:
@@ -472,13 +471,8 @@ class PlatformerForAi:
             self.D_not_pressed_timer = 0
             self.in_fall = True
         if not self.in_jump and not self.in_fall:
-            if  bool(action[2]) and self.jump_cool_down == 0: #action == Action.go_up and self.jump_cool_down == 0:
+            if bool(action[2]) and self.jump_cool_down == 0: #action == Action.go_up and self.jump_cool_down == 0:
                 self.in_jump = True
                 self.in_fall = True
 
         pygame.event.pump()
-
-
-
-#pygame.quit()
-#sys.exit()
