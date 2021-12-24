@@ -279,7 +279,7 @@ class PlatformerForAi:
             self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1000)
-            reward = -50  # за смерть
+            reward = -20  # за смерть
             game_over = True
             return reward, game_over, self.score
         if len(self.enemies) == 0 or self.win:  # текст победы
@@ -303,8 +303,8 @@ class PlatformerForAi:
 
 
         self.move_player(action)
-        if (not bool(action[0])) and (not bool(action[1])) and (not bool(action[2])) and (not bool(action[3])):
-            reward = -2 # за бездействие на месте
+        if (not bool(action[0])) and (not bool(action[1])):  # and (not bool(action[2])) and (not bool(action[3])):
+            reward = -1 # за бездействие на месте
 
 
         if self.D_not_pressed_timer <= 5:
@@ -377,7 +377,7 @@ class PlatformerForAi:
             if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                     b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
                                                   int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
-                reward = -2 # за получение урона
+                reward = -1 # за получение урона
                 if enemy == self.enemies[0]:
                     self.hp -= 2
                 else:
