@@ -1,7 +1,7 @@
 import sys
 import pygame
 import random
-from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
+from all_needed_things import Enemy, Boss, Heal_pack, Action, balls_collide as b_k
 
 
 pygame.init()
@@ -254,17 +254,20 @@ class PlatformerForAi:
         self.frame_iteration += 1
         reward = 0
         game_over = False
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: self.run = False
-
         pygame.time.delay(self.frame_delay)  # задержка между кадрами
+
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            pygame.quit()
+
 
         if self.background_count < 8:
             self.background_count += 1
         else:
             self.background_count = 1
 
-        if self.hp <= 0 or self.frame_iteration > 10000:  # текст смерти, если хп = 0 или долго
+        if self.hp <= 0 or self.frame_iteration > 1000:  # текст смерти, если хп = 0 или долго
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1200)
@@ -277,9 +280,7 @@ class PlatformerForAi:
             pygame.time.delay(2000)
             return reward, game_over, self.score
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            self.run = False
+
 
         self.move_player(action)
 
@@ -431,13 +432,14 @@ class PlatformerForAi:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 2],
                             (self.x - self.attack_right_x_shift, self.y - self.attack_right_y_shift))
             else:
-                self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.ttack_left_x_shift, self.y - self.attack_left_y_shift))
+                self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.attack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
         self.clock.tick(SPEED)
         return reward, game_over, self.score
 
     def move_player(self, action):
-        if action == 2 and self.x - self.radius > int(self.winx * 0.00390625):
+
+        if bool(action[1]) and self.x - self.radius > int(self.winx * 0.00390625): #action == Action.go_left and self.x - self.radius > int(self.winx * 0.00390625):
             self.x -= self.speed
             if not self.in_attack:
                 self.facing = -1
@@ -445,9 +447,9 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif action != 1:
+        elif not bool(action[0]): #action != Action.go_right:
             self.player_picture_number = 0
-        if action == 1 and self.x < int(self.winx * 0.99609375) - self.radius:
+        if bool(action[0]) and self.x < int(self.winx * 0.99609375) - self.radius: #action == Action.go_right and self.x < int(self.winx * 0.99609375) - self.radius:
             self.x += self.speed
             if not self.in_attack:
                 self.facing = 1
@@ -455,17 +457,17 @@ class PlatformerForAi:
                 self.player_picture_number += 1
             else:
                 self.player_picture_number = 1
-        elif action != 2:
+        elif bool(action[0]): #action != Action.go_right:
             self.player_picture_number = 0
 
-        if action == 5 and self.cool_down_count == 0:
+        if bool(action[4]) and self.cool_down_count == 0: #action == Action.attack and self.cool_down_count == 0:
             self.D_press_Count += 1  # счетчик нажатий клавиши D, для куллдауна
             self.in_attack = True
-        if action == 4 and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump:
+        if bool(action[3]) and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump: #action == Action.go_down and self.y != int(self.winy * 0.99) - self.radius and self.D_not_pressed_timer > 5 and not self.in_jump:
             self.D_not_pressed_timer = 0
             self.in_fall = True
         if not self.in_jump and not self.in_fall:
-            if  action == 3 and self.jump_cool_down == 0:
+            if  bool(action[2]) and self.jump_cool_down == 0: #action == Action.go_up and self.jump_cool_down == 0:
                 self.in_jump = True
                 self.in_fall = True
 

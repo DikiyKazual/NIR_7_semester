@@ -1,5 +1,5 @@
 import pygame
-from enum import Enum
+#from enum import Enum
 
 
 class Enemy:
@@ -100,7 +100,7 @@ class Boss(Enemy):
         self.picture = [BOSS1,BOSS2,BOSS3,BOSS4,BOSS5,BOSS6,BOSS7,BOSS8,BOSS_1,BOSS_2,BOSS_3,BOSS_4,BOSS_5,BOSS_6,BOSS_7,BOSS_8]
 
 
-class Action(Enum):
+class Action():
     go_right = 1
     go_left = 2
     go_up = 3

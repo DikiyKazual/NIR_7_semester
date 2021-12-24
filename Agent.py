@@ -19,7 +19,7 @@ class Agent:
         self.epsilon = 0 # меняет случайность действий
         self.discount_rate = 0.9
         self.memory = deque(maxlen = MAX_MEMORY) # при превышении объема удаляет с начала
-        self.model = Linear_QNet(11, 256, 5)
+        self.model = Linear_QNet(11, 256, 5) # 11 входов, 5 выходов
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -111,7 +111,7 @@ class Agent:
     def get_action(self, state):
         # random moves
         self.epsilon = 80 - self.number_of_games
-        final_move = [0,0,0]
+        final_move = [0,0,0,0,0]
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 2)
             final_move[move] = 1
@@ -120,9 +120,7 @@ class Agent:
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
-
         return final_move
-        pass
 
 def train():
     plot_scores = []
