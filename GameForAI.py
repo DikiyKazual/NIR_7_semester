@@ -11,13 +11,14 @@ class PlatformerForAi:
         # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) # - для полноэкранного
         # self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
         self.window = pygame.display.set_mode((1280, 720), display=1) # - для второго монитора
+        self.clock = pygame.time.Clock()
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
         self.frame_delay = 30  # регулирует скорость игры
         self.score = 0
         # for music
-        self.music_volume = 0.2  # 0.2 is default
+        self.music_volume = 0.1  # 0.2 is default
         self.file = 'Resources/OST.mp3'
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.mixer.init()
@@ -208,6 +209,7 @@ class PlatformerForAi:
                           random.randint(10, 20)))
 
         pygame.display.update()
+        pygame.event.pump()
         self.keys = pygame.key.get_pressed()
         #self.reset_game()
 
@@ -248,6 +250,7 @@ class PlatformerForAi:
             self.heal_packs.append(Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
                                         random.randint(2, 10), random.randint(10, 20)))
         pygame.display.update()
+        pygame.event.pump()
 
 
     def frame_step(self, action):
@@ -260,6 +263,7 @@ class PlatformerForAi:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             pygame.quit()
+            raise SystemExit
 
 
         if self.background_count < 8:
@@ -434,6 +438,8 @@ class PlatformerForAi:
             else:
                 self.window.blit(self.player_in_attack_list[self.steps_attack + 8], (self.x - self.attack_left_x_shift, self.y - self.attack_left_y_shift))
         pygame.display.update()
+        self.clock.tick(SPEED)
+        pygame.event.pump()
         return reward, game_over, self.score
 
     def move_player(self, action):
@@ -469,6 +475,8 @@ class PlatformerForAi:
             if  bool(action[2]) and self.jump_cool_down == 0: #action == Action.go_up and self.jump_cool_down == 0:
                 self.in_jump = True
                 self.in_fall = True
+
+        pygame.event.pump()
 
 
 
