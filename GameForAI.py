@@ -301,7 +301,11 @@ class PlatformerForAi:
                     self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
+
         self.move_player(action)
+        if (not bool(action[0])) and (not bool(action[1])) and (not bool(action[2])) and (not bool(action[3])):
+            reward = -2
+
 
         if self.D_not_pressed_timer <= 5:
             self.D_not_pressed_timer += 1
