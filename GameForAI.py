@@ -183,6 +183,7 @@ class PlatformerForAi:
                      (int(self.winx * 0.8), int(self.winy * 0.2), int(self.winx * 0.9)),
                      (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)),
                      (int(self.winx * 0.65), int(self.winy * 0.45), int(self.winx * 0.85))]
+        self.platform_visited_flag_list = [False] * len(self.platforms)
         self.run = True
 
         self.radiuse = int(self.winy * 0.08)  # описание БОССа
@@ -200,7 +201,7 @@ class PlatformerForAi:
             else:
                 continue
 
-        for elem in random.sample(self.platforms, random.randint(3, 4)):  # генератор ХИЛОК
+        for elem in random.sample(self.platforms, random.randint(10, 12)):  # генератор ХИЛОК
             self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
             self.heal_packs.append(
                 Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
@@ -243,6 +244,7 @@ class PlatformerForAi:
                           random.randint(10, 20)))
             else:
                 continue
+        self.platform_visited_flag_list = [False] * len(self.platforms)
 
         for elem in random.sample(self.platforms, random.randint(3, 4)):  # генератор ХИЛОК
             self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
@@ -287,12 +289,16 @@ class PlatformerForAi:
             return reward, game_over, self.score
 
 
-        for elem in self.platforms:
+        for i in range(len(self.platforms)):
+            elem = self.platforms[i]
             if abs(self.y + self.radius - elem[1]) < int(self.fallspeed + self.winy * 0.001666667) and self.y + self.radius - elem[1] <= 0 and elem[
                 0] <= self.x <= elem[2] and self.D_not_pressed_timer > 0:
                 if not self.in_jump:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
+                if not self.platform_visited_flag_list[i]:
+                    reward = 5
+                    self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
         self.move_player(action)
