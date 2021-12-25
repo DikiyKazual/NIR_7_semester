@@ -10,14 +10,14 @@ class PlatformerForAi:
     def __init__(self):
         # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # - для полноэкранного
         # self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
-        self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
+        self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
-        self.frame_delay = 0  # регулирует скорость игры
+        self.frame_delay = 15  # регулирует скорость игры
         self.score = 0
         # for music
-        self.music_volume = 0.1  # 0.2 is default
+        self.music_volume = 0.2  # 0.2 is default
         self.file = 'Resources/OST.mp3'
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.mixer.init()
