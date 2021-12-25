@@ -1,5 +1,4 @@
 import pygame
-import random
 from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
@@ -186,22 +185,20 @@ class PlatformerForAi:
                             int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                             int(self.winx * 0.008), 90))
 
-        for elem in random.sample(self.platforms, 12):  # генератор ВРАГОВ
-            if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
-                self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
+        for elem in self.platforms:  # генератор ВРАГОВ
+            if elem != (0, int(self.winy * 0.99), self.winx) and elem != (0, int(self.winy * 0.28), self.winx):
+                self.radiuse = int(self.winy * 0.04)
                 self.enemies.append(
                     Enemy(elem[0] + self.radiuse / 2, elem[1] - self.radiuse, elem[2] - self.radiuse / 2, int((elem[0] + elem[2]) / 2),
-                          elem[1] - self.radiuse, self.radiuse, random.randint(int(self.winx * 0.003), int(self.winx * 0.005)),
-                          random.randint(10, 20)))
+                          elem[1] - self.radiuse, self.radiuse, int(self.winx * 0.004),
+                          15))
             else:
                 continue
 
-        for elem in random.sample(self.platforms, 10):  # генератор ХИЛОК
-            self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
+        for elem in self.platforms:  # генератор ХИЛОК
+            self.radiuse = int(self.winy * 0.02)
             self.heal_packs.append(
-                Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
-                          random.randint(2, 10),
-                          random.randint(10, 20)))
+                Heal_pack(int((elem[0] + elem[2])/2), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4, 6, 15))
 
         pygame.display.update()
         pygame.event.pump()
@@ -229,22 +226,23 @@ class PlatformerForAi:
             Boss(int(self.winx * 0.2) + self.radiuse / 2, int(self.winy * 0.39) - self.radiuse, int(self.winx * 0.8) - self.radiuse / 2,
                  int((int(self.winx * 0.2) + int(self.winx * 0.8)) / 2), int(self.winy * 0.28) - self.radiuse, self.radiuse,
                  int(self.winx * 0.008), 90))
-        for elem in random.sample(self.platforms, 12):  # генератор ВРАГОВ
-            if elem != (0, int(self.winy * 0.99), self.winx) and elem != (int(self.winx * 0.2), int(self.winy * 0.28), int(self.winx * 0.8)):
-                self.radiuse = random.randint(int(self.winy * 0.03), int(self.winy * 0.05))
+        for elem in self.platforms:  # генератор ВРАГОВ
+            if elem != (0, int(self.winy * 0.99), self.winx) and elem != (0, int(self.winy * 0.28), self.winx):
+                self.radiuse = int(self.winy * 0.04)
                 self.enemies.append(
                     Enemy(elem[0] + self.radiuse / 2, elem[1] - self.radiuse, elem[2] - self.radiuse / 2,
                           int((elem[0] + elem[2]) / 2),
-                          elem[1] - self.radiuse, self.radiuse, random.randint(int(self.winx * 0.003), int(self.winx * 0.005)),
-                          random.randint(10, 20)))
+                          elem[1] - self.radiuse, self.radiuse, int(self.winx * 0.004),
+                          15))
             else:
                 continue
-        self.platform_visited_flag_list = [False] * len(self.platforms)
 
-        for elem in random.sample(self.platforms, 10):  # генератор ХИЛОК
-            self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
-            self.heal_packs.append(Heal_pack(random.randint(elem[0], elem[2]), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4,
-                                        random.randint(2, 10), random.randint(10, 20)))
+        for elem in self.platforms:  # генератор ХИЛОК
+            self.radiuse = int(self.winy * 0.02)
+            self.heal_packs.append(
+                Heal_pack(int((elem[0] + elem[2]) / 2), elem[1] - self.radiuse, self.radiuse, self.radiuse * 1.4, 6,
+                          15))
+
         pygame.display.update()
         pygame.event.pump()
 
@@ -418,7 +416,7 @@ class PlatformerForAi:
             self.window.blit(pygame.transform.scale(self.platform_sprite, (elem[2] - elem[0], int(self.winy * 0.01))),
                         (elem[0], elem[1]))
         for heal_pack in self.heal_packs:  # рисуем хилки
-            pygame.draw.circle(self.window, (0, random.randint(200, 255), 80), (heal_pack.x, heal_pack.y), heal_pack.radius)
+            pygame.draw.circle(self.window, (0, 230, 80), (heal_pack.x, heal_pack.y), heal_pack.radius)
         for enemy in self.enemies:  # рисуем врагов и их жизни int(winx*0.012)
             self.window.blit(enemy.get_pic(), (enemy.x - enemy.radius, enemy.y - int(enemy.radius * 0.948)))
             pygame.draw.line(self.window, (0, 128, 0),

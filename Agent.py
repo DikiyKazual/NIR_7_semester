@@ -10,7 +10,7 @@ from IPython import display
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000  # 1000
-Learning_rate = 0.000001  #0.001
+Learning_rate = 0.00001  #0.001
 
 
 class Agent:
@@ -122,9 +122,9 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 160 - self.number_of_games  # 80
+        self.epsilon = 80 - self.number_of_games  # 80
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
-        if random.randint(0, 400) < self.epsilon:  # (0, 200)
+        if random.randint(0, 200) < self.epsilon:  # (0, 200)
             move = random.randint(0, 4)
             final_move[move] = 1
         else:
