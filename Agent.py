@@ -10,7 +10,7 @@ from IPython import display
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000  # 1000
-Learning_rate = 0.00001  #0.001
+Learning_rate = 0.000001  #0.001
 
 
 class Agent:
@@ -19,7 +19,7 @@ class Agent:
         self.epsilon = 0  # меняет случайность действий
         self.discount_rate = 0.9  # 0.9
         self.memory = deque(maxlen = MAX_MEMORY)  # при превышении объема удаляет с начала
-        self.model = Linear_QNet(25, 512, 5) # 25 входов, 5 выходов  #(, 256, 5)
+        self.model = Linear_QNet(25, 256, 5) # 25 входов, 5 выходов  #(, 256, 5)
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
