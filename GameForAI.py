@@ -14,7 +14,7 @@ class PlatformerForAi:
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
-        self.frame_delay = 15  # регулирует скорость игры
+        self.frame_delay = 0  # регулирует скорость игры 15 для адекватной скорости
         self.score = 0
         # for music
         self.music_volume = 0.2  # 0.2 is default
