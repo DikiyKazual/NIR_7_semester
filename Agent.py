@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 from IPython import display
 
 
-MAX_MEMORY = 100_000
-BATCH_SIZE = 1000  # 1000
-Learning_rate = 0.001  #0.001
+MAX_MEMORY = 100_000_000
+BATCH_SIZE = 10000  # 1000
+Learning_rate = 0.00004  #0.001 0.00005
 
 
 class Agent:
@@ -19,7 +19,7 @@ class Agent:
         self.epsilon = 0  # меняет случайность действий
         self.discount_rate = 0.9  # 0.9
         self.memory = deque(maxlen = MAX_MEMORY)  # при превышении объема удаляет с начала
-        self.model = Linear_QNet(25, 1024, 5) # 25 входов, 5 выходов  #(, 256, 5)
+        self.model = Linear_QNet(24, 2048, 5) # 25 входов, 5 выходов  #(, 256, 5)
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -42,12 +42,55 @@ class Agent:
         in_attack = game.in_attack
 
         distances_to_heal_packs = []
-        for i in range(len(game.heal_packs)):
-            distance = ((game.heal_packs[i].x - game.x) ** 2 + (game.heal_packs[i].y - game.y) ** 2) ** 0.5
-            distances_to_heal_packs.append(distance)
-        index_of_closest_heal = np.argmin(distances_to_heal_packs)
+        if game.heal_packs:
+            for i in range(len(game.heal_packs)):
+                distance = ((game.heal_packs[i].x - game.x) ** 2 + (game.heal_packs[i].y - game.y) ** 2) ** 0.5
+                distances_to_heal_packs.append(distance)
+            index_of_closest_heal = np.argmin(distances_to_heal_packs)
+            min_distance_to_heal_pack = min(distances_to_heal_packs)
+            closest_heal_to_the_left = game.x > game.heal_packs[index_of_closest_heal].x
+            closest_heal_to_the_right = game.x < game.heal_packs[index_of_closest_heal].x
+            closest_heal_to_the_top = game.y > game.heal_packs[index_of_closest_heal].y
+            closest_heal_to_the_bottom = game.y < game.heal_packs[index_of_closest_heal].y
+        else:
+            min_distance_to_heal_pack = -1
+            closest_heal_to_the_left = False
+            closest_heal_to_the_right = False
+            closest_heal_to_the_top = False
+            closest_heal_to_the_bottom = False
 
         distances_to_enemies = []
+
+        if len(game.enemies) < 1:
+            state = [
+                x,
+                y,
+                hp,  # Health of a player
+                need_to_heal,
+                len(game.enemies),
+                -1,  # расстояние до ближайшей лечилки
+                -1,  # расстояние до ближайшего врага
+                facing,  # Move direction
+                in_jump,
+                in_fall,
+                in_attack,
+                True,
+                # facing_center,
+                False,  # boss to the left
+                True,  # boss to the right
+                False,  # boss to the up
+                True,  # boss to the down
+                False,  # closest enemy to the left
+                True,  # closest enemy to the right
+                False,  # closest enemy to the top
+                True,  # closest enemy to the bottom
+                False,  # closest heal to the left
+                True,  # closest heal to the right
+                False,  # closest heal to the top
+                True  # closest heal to the bottom
+            ]
+            return np.array(state, dtype=int)
+
         for i in range(len(game.enemies)):
             distance = ((game.enemies[i].x - game.x) ** 2 + (game.enemies[i].y - game.y) ** 2) ** 0.5
             distances_to_enemies.append(distance)
@@ -75,7 +118,7 @@ class Agent:
 
             len(game.enemies),
 
-            min(distances_to_heal_packs),  # расстояние до ближайшей лечилки
+            min_distance_to_heal_pack,  # расстояние до ближайшей лечилки
 
             min(distances_to_enemies),  # расстояние до ближайшего врага
 
@@ -84,7 +127,7 @@ class Agent:
             in_fall,
             in_attack,
             facing_closest_enemy,
-            facing_center,
+            #facing_center,
 
 
             game.x > game.enemies[0].x,  # boss to the left
@@ -97,10 +140,10 @@ class Agent:
             game.y > game.enemies[index_of_closest_enemy].y,  # closest enemy to the top
             game.y < game.enemies[index_of_closest_enemy].y,  # closest enemy to the bottom
 
-            game.x > game.heal_packs[index_of_closest_heal].x,  # closest heal to the left
-            game.x < game.heal_packs[index_of_closest_heal].x,  # closest heal to the right
-            game.y > game.heal_packs[index_of_closest_heal].y,  # closest heal to the top
-            game.y < game.heal_packs[index_of_closest_heal].y  # closest heal to the bottom
+            closest_heal_to_the_left,
+            closest_heal_to_the_right,
+            closest_heal_to_the_top,
+            closest_heal_to_the_bottom
             ]
         return np.array(state, dtype=int)
 
@@ -122,9 +165,9 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 80 - self.number_of_games  # 80
+        self.epsilon = 1500 - self.number_of_games  # 80
         final_move = [0,0,0,0,0] # right = 0 left = 1 up = 2 down = 3 attack = 4
-        if random.randint(0, 200) < self.epsilon:  # (0, 200)
+        if random.randint(0, 3000) < self.epsilon:  # (0, 200)
             move = random.randint(0, 4)
             final_move[move] = 1
         else:

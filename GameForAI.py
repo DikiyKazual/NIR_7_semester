@@ -4,13 +4,13 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 2000
+MAX_FRAME_ITERATION = 5000
 
 class PlatformerForAi:
     def __init__(self):
         # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # - для полноэкранного
         # self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
-        self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.window = pygame.display.set_mode((640, 360))  #set_mode((0, 0), pygame.FULLSCREEN)
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
@@ -272,20 +272,21 @@ class PlatformerForAi:
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1000)
-            reward -= 50 # за смерть
+            reward -= 20 # за смерть
             game_over = True
             return reward, game_over, self.score
         if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
             self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(1000)
-            reward -= 50  # за смерть
+            reward -= 20  # за смерть
             game_over = True
             return reward, game_over, self.score
-        if len(self.enemies) == 0 or self.win:  # текст победы
+        if (not self.enemies) or self.win:  # текст победы
             self.window.blit(self.win_sprite, (0, 0))  # рисуем текст победы
             pygame.display.update()
-            pygame.time.delay(2000)
+            pygame.time.delay(1500)
+            game_over = True
             return reward, game_over, self.score
 
 
@@ -297,7 +298,7 @@ class PlatformerForAi:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
                 if not self.platform_visited_flag_list[i]:
-                    reward += 0 # за то что побывал на новой платформе
+                    reward += 0  # за то что побывал на новой платформе
                     self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
@@ -353,15 +354,16 @@ class PlatformerForAi:
         if self.enemy_cool_down_count > 0:
             self.enemy_cool_down_count -= 1
 
-        for heal_pack in self.heal_packs:  # пульсация бонусов
-            if heal_pack.radius <= heal_pack.radius_increased / 1.4:
-                self.increase = True
-                self.decrease = False
-                break
-            if heal_pack.radius >= heal_pack.radius_increased:
-                self.decrease = True
-                self.increase = False
-                break
+        if self.heal_packs:
+            for heal_pack in self.heal_packs:  # пульсация бонусов
+                if heal_pack.radius <= heal_pack.radius_increased / 1.4:
+                    self.increase = True
+                    self.decrease = False
+                    break
+                if heal_pack.radius >= heal_pack.radius_increased:
+                    self.decrease = True
+                    self.increase = False
+                    break
 
         if self.increase is True:
             for heal_pack in self.heal_packs:
@@ -372,60 +374,63 @@ class PlatformerForAi:
                 heal_pack.radius -= int(self.winy * 0.0017)
                 heal_pack.y += int(self.winy * 0.0017)
 
-        for enemy in self.enemies:
-            enemy.move()
-            if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
-                    b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
-                                                  int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
-                reward -= 1 # за получение урона
-                if enemy == self.enemies[0]:
-                    self.hp -= 2
-                else:
-                    self.hp -= 1
-                self.enemy_cool_down_count = 14
-            if self.in_attack:  # отнимаем жизнь у врагов при атаке игрока
-                if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
-                    enemy.hp -= 2
+        if self.enemies:
+            for enemy in self.enemies:
+                enemy.move()
+                if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
+                        b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
+                                                      int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
+                    reward -= 1 # за получение урона
                     if enemy == self.enemies[0]:
-                        reward += 30  # за то, что бьет босса
-                        self.score += 2
+                        self.hp -= 2
                     else:
-                        reward += 15  # за то, что бьет врага
-                        self.score += 1
-                    if enemy.hp <= 0:
-                        self.enemies.remove(enemy)  # враги умирают
+                        self.hp -= 1
+                    self.enemy_cool_down_count = 14
+                if self.in_attack:  # отнимаем жизнь у врагов при атаке игрока
+                    if b_k((self.x_attack, self.y_attack, self.radius_attack), (enemy.x, enemy.y, int(enemy.radius * 0.95))):
+                        enemy.hp -= 2
                         if enemy == self.enemies[0]:
-                            reward += 400  # за победу над боссом
-                            self.score += 300
+                            reward += 30  # за то, что бьет босса
+                            self.score += 2
                         else:
-                            reward += 50  # за победу над врагом
-                            self.score += 50
-                        if enemy == self.enemies[0]:
-                            self.win = True
+                            reward += 15  # за то, что бьет врага
+                            self.score += 1
+                        if enemy.hp <= 0:
+                            if enemy == self.enemies[0]:
+                                reward += 400  # за победу над боссом
+                                self.score += 300
+                                self.win = True
+                            else:
+                                reward += 150  # за победу над врагом
+                                self.score += 50
+                            self.enemies.remove(enemy)  # враги умирают
 
-        for heal_pack in self.heal_packs:  # прибавляем жизнь игроку при соприкосновении с лечилкой
-            if b_k((self.x, self.y, self.radius), (heal_pack.x, heal_pack.y, heal_pack.radius)):
-                if self.hp < self.max_hp:
-                    self.hp = self.max_hp
-                elif self.hp == self.max_hp:
-                    continue
-                self.heal_packs.remove(heal_pack)
-                reward += 50  # за использование лечилки для восстановления здоровья
+        if self.heal_packs:
+            for heal_pack in self.heal_packs:  # прибавляем жизнь игроку при соприкосновении с лечилкой
+                if b_k((self.x, self.y, self.radius), (heal_pack.x, heal_pack.y, heal_pack.radius)):
+                    if self.hp < self.max_hp:
+                        self.hp = self.max_hp
+                    elif self.hp == self.max_hp:
+                        continue
+                    self.heal_packs.remove(heal_pack)
+                    reward += 50  # за использование лечилки для восстановления здоровья
 
         self.window.blit(self.background_sprite_list[self.background_count - 1], (0, 0))  # рисуем фон
 
         for elem in self.platforms:  # рисуем платформы
             self.window.blit(pygame.transform.scale(self.platform_sprite, (elem[2] - elem[0], int(self.winy * 0.01))),
                         (elem[0], elem[1]))
-        for heal_pack in self.heal_packs:  # рисуем хилки
-            pygame.draw.circle(self.window, (0, random.randint(200, 255), 80), (heal_pack.x, heal_pack.y), heal_pack.radius)
-        for enemy in self.enemies:  # рисуем врагов и их жизни int(winx*0.012)
-            self.window.blit(enemy.get_pic(), (enemy.x - enemy.radius, enemy.y - int(enemy.radius * 0.948)))
-            pygame.draw.line(self.window, (0, 128, 0),
-                             (enemy.x - int(self.winx * 0.00625), enemy.y - enemy.radius - int(self.winx * 0.004)), (
-                                 enemy.x + int(self.winx * 0.00625) - (
-                                     int(20 * ((enemy.max_hp - enemy.hp) / enemy.max_hp))) / 1600 * self.winx,
-                                 enemy.y - enemy.radius - int(self.winx * 0.004)), 2)
+        if self.heal_packs:
+            for heal_pack in self.heal_packs:  # рисуем хилки
+                pygame.draw.circle(self.window, (0, random.randint(200, 255), 80), (heal_pack.x, heal_pack.y), heal_pack.radius)
+        if self.enemies:
+            for enemy in self.enemies:  # рисуем врагов и их жизни int(winx*0.012)
+                self.window.blit(enemy.get_pic(), (enemy.x - enemy.radius, enemy.y - int(enemy.radius * 0.948)))
+                pygame.draw.line(self.window, (0, 128, 0),
+                                 (enemy.x - int(self.winx * 0.00625), enemy.y - enemy.radius - int(self.winx * 0.004)), (
+                                     enemy.x + int(self.winx * 0.00625) - (
+                                         int(20 * ((enemy.max_hp - enemy.hp) / enemy.max_hp))) / 1600 * self.winx,
+                                     enemy.y - enemy.radius - int(self.winx * 0.004)), 2)
         if self.hp != 0:  # рисуем полоску жизни игрока
             pygame.draw.rect(self.window, (90, 15, 15),
                              (int(self.winx * 0.02), int(self.winy * 0.024),
