@@ -4,7 +4,7 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 5000
+MAX_FRAME_ITERATION = 4000
 
 class PlatformerForAi:
     def __init__(self):
@@ -16,6 +16,7 @@ class PlatformerForAi:
         pygame.display.set_caption('PlatformeR')
         self.frame_delay = 0  # регулирует скорость игры 15 для адекватной скорости
         self.score = 0
+        self.delay = 300  # 1500 задержка для текста о конце игры
         # for music
         self.music_volume = 0.2  # 0.2 is default
         self.file = 'Resources/OST.mp3'
@@ -271,21 +272,21 @@ class PlatformerForAi:
         if self.hp <= 0:  # текст смерти, если хп = 0
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
-            pygame.time.delay(1000)
+            pygame.time.delay(self.delay)
             reward -= 20 # за смерть
             game_over = True
             return reward, game_over, self.score
         if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
             self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
-            pygame.time.delay(1000)
-            reward -= 20  # за смерть
+            pygame.time.delay(self.delay)
+            reward -= 15  # за смерть
             game_over = True
             return reward, game_over, self.score
         if (not self.enemies) or self.win:  # текст победы
             self.window.blit(self.win_sprite, (0, 0))  # рисуем текст победы
             pygame.display.update()
-            pygame.time.delay(1500)
+            pygame.time.delay(self.delay)
             game_over = True
             return reward, game_over, self.score
 
