@@ -165,9 +165,10 @@ class Agent:
 
     def get_action(self, state):
         # random moves
-        self.epsilon = 150 - self.number_of_games  # 80
         final_move = [0, 0, 0, 0, 0]  # right = 0 left = 1 up = 2 down = 3 attack = 4
-        if random.randint(0, 300) < self.epsilon:  # (0, 200)
+        self.epsilon = 150 - self.number_of_games  # 80
+        # if random.randint(0, 300) < self.epsilon:  # (0, 200)
+        if random.randint(0, 100) < 25:
             move = random.randint(0, 4)
             final_move[move] = 1
         else:

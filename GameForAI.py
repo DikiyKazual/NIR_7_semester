@@ -273,7 +273,7 @@ class PlatformerForAi:
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(self.delay)
-            reward -= 20 # за смерть
+            reward -= 40 # за смерть
             game_over = True
             return reward, game_over, self.score
         if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
@@ -414,7 +414,7 @@ class PlatformerForAi:
                     elif self.hp == self.max_hp:
                         continue
                     self.heal_packs.remove(heal_pack)
-                    reward += 50  # за использование лечилки для восстановления здоровья
+                    reward += 5  # за использование лечилки для восстановления здоровья
 
         self.window.blit(self.background_sprite_list[self.background_count - 1], (0, 0))  # рисуем фон
 
