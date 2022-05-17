@@ -48,7 +48,7 @@ class Enemy:
         PIGEON_8 = pygame.transform.smoothscale(PIGEON_8, (2*radius, 2*radius))
         self.picture = [PIGEON1,PIGEON2,PIGEON3,PIGEON4,PIGEON5,PIGEON6,PIGEON7,PIGEON8,PIGEON_1,PIGEON_2,PIGEON_3,PIGEON_4,PIGEON_5,PIGEON_6,PIGEON_7,PIGEON_8]
         
-    def move(self): #эт чтобы они бродили по платформе
+    def move(self):  # алгоритм движения врагов по платформам
         if self.x + self.speed >= self.xk or self.x0 >= self.x + self.speed:
             self.speed = -self.speed
             self.max_n *= -1
@@ -60,7 +60,8 @@ class Enemy:
             return self.picture[-self.picture_number + 7]
         else:
             return self.picture[self.picture_number - 1]
-        
+
+
 class Boss(Enemy):
     def __init__(self, x0, y0, xk, x, y, radius, speed, hp):
         Enemy.__init__(self, x0, y0, xk, x, y, radius, speed, hp)
@@ -110,6 +111,7 @@ class Heal_pack:
         self.picture = 'Resources/name.png'
 
 
+# функция для проверки коллизий
 def balls_collide(ball1, ball2):
     if ((ball1[0]-ball2[0])**2 + (ball1[1]-ball2[1])**2)**0.5 <= ball1[2]+ball2[2]:
         return True

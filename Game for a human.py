@@ -25,7 +25,7 @@ x, y, radius, speed, jump_step, in_jump, in_fall, facing, hp, max_hp, in_attack,
     winx * 0.08), int(winy * 0.99) - int(winy * 0.02), int(winy * 0.02), int(
     winx * 0.00875), 5, False, True, 1, 15, 15, False, int(winy * 0.03), -3, winy * 0.016666667
 jump_speed = [0, int(winy * 0.001666667), int(winy * 0.006666667), int(winy * 0.015), int(winy * 0.026666666),
-              int(winy * 0.041666666)]  # при смене радиуса тут^тож исправить^
+              int(winy * 0.041666666)]  # при смене радиуса
 y_attack = y - int(radius * 0.4)
 x_attack = x + facing * int(radius * 1.2)
 frame_iteration = 0
@@ -159,7 +159,7 @@ def reset_game():
     global cool_down_count, D_press_Count, enemy_cool_down_count
     cool_down_count, D_press_Count, enemy_cool_down_count = 0, 0, 0  # для куллдауна атаки
     global D_not_pressed_timer
-    D_not_pressed_timer = 100 # чтобы спрыг вниз нормально работал
+    D_not_pressed_timer = 100  # чтобы спрыг вниз нормально работал
     global win
     win = False  # флаг убийства босса
     global jump_cool_down
@@ -172,7 +172,7 @@ def reset_game():
                         int((int(winx * 0.2) + int(winx * 0.8)) / 2), int(winy * 0.28) - radiuse, radiuse,
                         int(winx * 0.008), 90))
     global platforms
-    for elem in random.sample(platforms, random.randint(15, 20)):  # генератор ВРАГОВ
+    for elem in random.sample(platforms, random.randint(15, 20)):  # генератор врагов
         if elem != (0, int(winy * 0.99), winx) and elem != (int(winx * 0.2), int(winy * 0.28), int(winx * 0.8)):
             radiuse = random.randint(int(winy * 0.03), int(winy * 0.05))
             enemies.append(
@@ -182,7 +182,7 @@ def reset_game():
         else:
             continue
 
-    for elem in random.sample(platforms, random.randint(3, 4)):  # генератор ХИЛОК
+    for elem in random.sample(platforms, random.randint(3, 4)):  # генератор лечилок
         radiuse = random.randint(int(winy * 0.01), int(winy * 0.012))
         heal_packs.append(Heal_pack(random.randint(elem[0], elem[2]), elem[1] - radiuse, radiuse, radiuse * 1.4,
                                     random.randint(2, 10), random.randint(10, 20)))
@@ -198,7 +198,7 @@ heal_packs = []
 
 increase, decrease = False, False  # для пульсации лечилок
 
-cool_down_count, D_press_Count, enemy_cool_down_count = 0, 0, 0  # для куллдауна атаки
+cool_down_count, D_press_Count, enemy_cool_down_count = 0, 0, 0  # для кулдауна атаки
 D_not_pressed_timer = 100  # чтобы спрыг вниз нормально работал
 win = False  # флаг убийства босса
 jump_cool_down = 0
@@ -223,12 +223,12 @@ platforms = [(0, int(winy * 0.99), winx), (int(winx * 0.18), int(winy * 0.94), i
              (int(winx * 0.65), int(winy * 0.45), int(winx * 0.85))]
 run = True
 
-radiuse = int(winy * 0.08)  # описание БОССа
+radiuse = int(winy * 0.08)  # описание босса
 enemies.append(Boss(int(winx * 0.2) + radiuse / 2, int(winy * 0.39) - radiuse, int(winx * 0.8) - radiuse / 2,
                     int((int(winx * 0.2) + int(winx * 0.8)) / 2), int(winy * 0.28) - radiuse, radiuse,
                     int(winx * 0.008), 90))
 
-for elem in random.sample(platforms, random.randint(15, 20)):  # генератор ВРАГОВ
+for elem in random.sample(platforms, random.randint(15, 20)):  # генератор врагов
     if elem != (0, int(winy * 0.99), winx) and elem != (int(winx * 0.2), int(winy * 0.28), int(winx * 0.8)):
         radiuse = random.randint(int(winy * 0.03), int(winy * 0.05))
         enemies.append(
@@ -238,7 +238,7 @@ for elem in random.sample(platforms, random.randint(15, 20)):  # генерат�
     else:
         continue
 
-for elem in random.sample(platforms, random.randint(3, 4)):  # генератор ХИЛОК
+for elem in random.sample(platforms, random.randint(3, 4)):  # генератор лечилок
     radiuse = random.randint(int(winy * 0.01), int(winy * 0.012))
     heal_packs.append(
         Heal_pack(random.randint(elem[0], elem[2]), elem[1] - radiuse, radiuse, radiuse * 1.4, random.randint(2, 10),
@@ -274,7 +274,6 @@ while run:  # цикл игры
         run = False
     if keys[pygame.K_LEFT] and x - radius > int(winx * 0.00390625):
         x -= speed
-        #if not in_attack:
         facing = -1
         if player_picture_number < 12:
             player_picture_number += 1
@@ -284,7 +283,6 @@ while run:  # цикл игры
         player_picture_number = 0
     if keys[pygame.K_RIGHT] and x < int(winx * 0.99609375) - radius:
         x += speed
-        #if not in_attack:
         facing = 1
         if player_picture_number < 12:
             player_picture_number += 1
@@ -409,7 +407,7 @@ while run:  # цикл игры
         window.blit(pygame.transform.scale(platform_sprite, (elem[2] - elem[0], int(winy * 0.01))), (elem[0], elem[1]))
     for heal_pack in heal_packs:  # рисуем хилки
         pygame.draw.circle(window, (0, random.randint(200, 255), 80), (heal_pack.x, heal_pack.y), heal_pack.radius)
-    for enemy in enemies:  # рисуем врагов и их жизни int(winx*0.012)
+    for enemy in enemies:  # рисуем врагов и их жизни
         window.blit(enemy.get_pic(), (enemy.x - enemy.radius, enemy.y - int(enemy.radius * 0.948)))
         pygame.draw.line(window, (0, 128, 0),
                          (enemy.x - int(winx * 0.00625), enemy.y - enemy.radius - int(winx * 0.004)), (

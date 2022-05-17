@@ -10,7 +10,7 @@ from IPython import display
 
 MAX_MEMORY = 100_000_000
 BATCH_SIZE = 10000  # 1000
-Learning_rate = 0.0001  #0.001 0.00005
+Learning_rate = 0.0001  # 0.001 0.00005
 
 
 class Agent:
@@ -19,7 +19,7 @@ class Agent:
         self.epsilon = 0  # меняет случайность действий
         self.discount_rate = 0.9  # 0.9
         self.memory = deque(maxlen = MAX_MEMORY)  # при превышении объема удаляет с начала
-        self.model = Linear_QNet(24, 2048, 5) # 25 входов, 5 выходов  #(, 256, 5)
+        self.model = Linear_QNet(24, 2048, 5)  # 25 входов, 5 выходов  #(, 256, 5)
         self.trainer = QTrainer(self.model, lr=Learning_rate, gamma=self.discount_rate)
 
     def get_state(self, game):
@@ -31,7 +31,6 @@ class Agent:
         if hp/max_hp < 0.5:
             need_to_heal = True
         facing = True
-        facing_center = True
         # куда сейчас движется
         if game.facing == 1:
             facing = True
@@ -70,7 +69,7 @@ class Agent:
                 len(game.enemies),
                 -1,  # расстояние до ближайшей лечилки
                 -1,  # расстояние до ближайшего врага
-                facing,  # Move direction
+                facing,  # направление движения
                 in_jump,
                 in_fall,
                 in_attack,
@@ -103,42 +102,29 @@ class Agent:
         else:
             facing_closest_enemy = False
 
-        if (game.x <= int(game.winx/2)) and facing:
-            facing_center = True
-        elif (game.x >= int(game.winx/2)) and (not facing):
-            facing_center = True
-        else:
-            facing_center = False
-
         state = [
             x,
             y,
-            hp,  # Health of a player
+            hp,
             need_to_heal,
-
             len(game.enemies),
-
             min_distance_to_heal_pack,  # расстояние до ближайшей лечилки
-
             min(distances_to_enemies),  # расстояние до ближайшего врага
-
-            facing,  # Move direction
+            facing,  # направление движения
             in_jump,
             in_fall,
             in_attack,
             facing_closest_enemy,
-            #facing_center,
 
+            game.x > game.enemies[0].x,  # босс слева
+            game.x < game.enemies[0].x,  # босс справа
+            game.y > game.enemies[0].y,  # босс сверху
+            game.y < game.enemies[0].y,  # босс снизу
 
-            game.x > game.enemies[0].x,  # boss to the left
-            game.x < game.enemies[0].x,  # boss to the right
-            game.y > game.enemies[0].y,  # boss to the up
-            game.y < game.enemies[0].y,  # boss to the down
-
-            game.x > game.enemies[index_of_closest_enemy].x,  # closest enemy to the left
-            game.x < game.enemies[index_of_closest_enemy].x,  # closest enemy to the right
-            game.y > game.enemies[index_of_closest_enemy].y,  # closest enemy to the top
-            game.y < game.enemies[index_of_closest_enemy].y,  # closest enemy to the bottom
+            game.x > game.enemies[index_of_closest_enemy].x,  # ближайший враг слева
+            game.x < game.enemies[index_of_closest_enemy].x,  # ближайший враг справа
+            game.y > game.enemies[index_of_closest_enemy].y,  # ближайший враг сверху
+            game.y < game.enemies[index_of_closest_enemy].y,  # ближайший враг снизу
 
             closest_heal_to_the_left,
             closest_heal_to_the_right,
@@ -147,13 +133,13 @@ class Agent:
             ]
         return np.array(state, dtype=int)
 
-
+    # удаляем с начала списка если димит MAX_MEMORY достигнут:
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
+        self.memory.append((state, action, reward, next_state, done))
 
     def train_long_memory(self):
         if len(self.memory) > BATCH_SIZE:
-            mini_sample = random.sample(self.memory, BATCH_SIZE)  # list of tuples
+            mini_sample = random.sample(self.memory, BATCH_SIZE)  # список пар
         else:
             mini_sample = self.memory
 
@@ -186,24 +172,24 @@ def train():
     agent = Agent()
     game = PlatformerForAi()
     while True:
-        # get old state
+        # получаем старое состояние
         state_old = agent.get_state(game)
 
-        # get action
+        # выбираем действие
         final_move = agent.get_action(state_old)
 
-        # perform move and get new state
+        # выполняем действие и переходим в новое состояние
         reward, done, score = game.frame_step(final_move)
         state_new = agent.get_state(game)
 
-        # train short memory
+        # тренировка короткой памяти
         agent.train_short_memory(state_old, final_move, reward, state_new, done)
 
-        # remember
+        # запоминание
         agent.remember(state_old, final_move, reward, state_new, done)
 
         if done:
-            # train long memory, plot result
+            # тренировка долгосрочной памяти и отрисовка графика
             game.reset_game()
             agent.number_of_games += 1
             agent.train_long_memory()

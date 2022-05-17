@@ -4,13 +4,14 @@ from all_needed_things import Enemy, Boss, Heal_pack, balls_collide as b_k
 
 
 pygame.init()
-MAX_FRAME_ITERATION = 4000
+MAX_FRAME_ITERATION = 4400
+
 
 class PlatformerForAi:
     def __init__(self):
         # self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # - для полноэкранного
         # self.window = pygame.display.set_mode((1280, 720), display=1)  # - для второго монитора
-        self.window = pygame.display.set_mode((640, 360))  #set_mode((0, 0), pygame.FULLSCREEN)
+        self.window = pygame.display.set_mode((640, 360))  # set_mode((0, 0), pygame.FULLSCREEN)
         displ = pygame.display.Info()
         self.winx, self.winy = displ.current_w, displ.current_h
         pygame.display.set_caption('PlatformeR')
@@ -179,7 +180,6 @@ class PlatformerForAi:
                      (0, int(self.winy * 0.39), self.winx),
                      (0, int(self.winy * 0.33), self.winx),
                      (0, int(self.winy * 0.28), self.winx)]
-        self.platform_visited_flag_list = [False] * len(self.platforms)
         self.run = True
 
         self.radiuse = int(self.winy * 0.08)  # описание БОССа
@@ -207,7 +207,6 @@ class PlatformerForAi:
         pygame.display.update()
         pygame.event.pump()
         self.keys = pygame.key.get_pressed()
-        #self.reset_game()
 
 
     def reset_game(self):
@@ -240,7 +239,6 @@ class PlatformerForAi:
                           random.randint(10, 20)))
             else:
                 continue
-        self.platform_visited_flag_list = [False] * len(self.platforms)
 
         for elem in random.sample(self.platforms, 10):  # генератор ХИЛОК
             self.radiuse = random.randint(int(self.winy * 0.01), int(self.winy * 0.012))
@@ -273,10 +271,10 @@ class PlatformerForAi:
             self.window.blit(self.death_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(self.delay)
-            reward -= 40 # за смерть
+            reward -= 40  # за смерть
             game_over = True
             return reward, game_over, self.score
-        if self.frame_iteration > MAX_FRAME_ITERATION: # текст о проигрыше, время вышло
+        if self.frame_iteration > MAX_FRAME_ITERATION:  # текст о проигрыше, время вышло
             self.window.blit(self.time_is_up_sprite, (0, 0))  # рисуем текст смерти
             pygame.display.update()
             pygame.time.delay(self.delay)
@@ -298,9 +296,6 @@ class PlatformerForAi:
                 if not self.in_jump:
                     self.y -= self.y + self.radius - elem[1]
                 self.in_fall = False
-                if not self.platform_visited_flag_list[i]:
-                    reward += 0  # за то что побывал на новой платформе
-                    self.platform_visited_flag_list[i] = True
                 self.fallspeed = self.winy * 0.0166666667
 
 
@@ -381,7 +376,7 @@ class PlatformerForAi:
                 if (b_k((self.x, self.y, self.radius), (enemy.x, enemy.y + int(enemy.radius * 0.1), int(enemy.radius * 0.95))) or (
                         b_k((self.x, self.y - self.radius, self.radius), (enemy.x, enemy.y,
                                                       int(enemy.radius * 0.9))))) and self.enemy_cool_down_count == 0:  # отнимаем хп у игрока
-                    reward -= 1 # за получение урона
+                    reward -= 1  # за получение урона
                     if enemy == self.enemies[0]:
                         self.hp -= 2
                     else:
